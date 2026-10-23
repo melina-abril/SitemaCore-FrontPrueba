@@ -1,0 +1,4 @@
+.inicio-page { display: grid; gap: 1.5rem; color: var(--text); }
+header p { margin: .25rem 0 0; color: var(--muted); }
+.alert { color: var(--danger); background: var(--danger-bg); border: 1px solid var(--danger); border-radius: .5rem; padding: 1rem; }
+.btn { justify-self: start; }

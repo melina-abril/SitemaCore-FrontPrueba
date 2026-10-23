@@ -1,0 +1,11 @@
+.page-heading { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+.page-heading h1 { margin: 0; }
+.page-heading p { color: var(--muted); margin: .35rem 0 0; }
+.actions { margin: 1rem 0; }
+.actions a { display: inline-block; text-decoration: none; }
+.history { margin-top: 1.5rem; }
+.history h2 { margin-top: 0; font-size: 1.15rem; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td { padding: .75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { color: var(--muted); font-size: .8rem; }

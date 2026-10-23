@@ -1,0 +1,11 @@
+<header class="header">
+  <a class="app-title" routerLink="/inicio" aria-label="Sistema Core: ir al inicio">Sistema Core</a>
+  <div class="user-controls">
+    <span class="user-name">{{ session.user().name }}</span>
+    <label for="demo-role">Rol de demostración</label>
+    <select id="demo-role" [value]="session.user().role" (change)="changeRole($event)">
+      <option value="OPERADOR">Operador</option>
+      <option value="SUPERVISOR">Supervisor</option>
+    </select>
+  </div>
+</header>

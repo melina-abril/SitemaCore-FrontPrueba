@@ -1,0 +1,24 @@
+<header class="page-heading"><div><h1 class="page-title">Cierre diario</h1><p>Consultá el estado de la fecha operativa y los cierres anteriores.</p></div><button class="btn small" type="button" (click)="reload()" [disabled]="loading()">Actualizar</button></header>
+@if (loading()) { <p role="status">Cargando información del cierre…</p> }
+@else if (error()) { <div class="alert" role="alert">No se pudo consultar el cierre diario. <button class="btn small" type="button" (click)="reload()">Reintentar</button></div> }
+@else {
+  @if (close(); as dailyClose) {
+    <app-close-summary [close]="dailyClose" [balances]="balances()" />
+    @if (isSupervisor()) {
+      <div class="actions">
+        @if (dailyClose.estado === 'PENDIENTE') { <a class="btn primary" routerLink="ejecutar">Ejecutar cierre</a> }
+        @if (dailyClose.estado === 'CON_ERROR') { <a class="btn primary" routerLink="reproceso">Reprocesar cierre</a> }
+      </div>
+    }
+    @if (dailyClose.estado === 'EN_CURSO') { <p role="status">El cierre está en curso. Actualizá la página para consultar el resultado.</p> }
+    @if (dailyClose.estado === 'COMPLETADO') { <p role="status">El día ya está cerrado. No se puede ejecutar otro cierre para esta fecha.</p> }
+  } @else { <p class="empty">No hay información para la fecha operativa.</p> }
+  <section class="card history" aria-labelledby="history-title">
+    <h2 id="history-title">Historial de cierres</h2>
+    @if (history().length) {
+      <div class="table-wrap"><table><thead><tr><th scope="col">Fecha</th><th scope="col">Movimientos</th><th scope="col">Estado</th><th scope="col">Débitos</th><th scope="col">Créditos</th></tr></thead><tbody>
+        @for (item of history(); track item.fechaOperativa) { <tr><td>{{ item.fechaOperativa }}</td><td>{{ item.cantidadMovimientos }}</td><td>@switch (item.estado) { @case ('PENDIENTE') { Pendiente } @case ('EN_CURSO') { En curso } @case ('COMPLETADO') { Completado } @case ('CON_ERROR') { Con error } }</td><td>{{ item.totalDebitos == null ? '—' : (item.totalDebitos | number:'1.2-2') }}</td><td>{{ item.totalCreditos == null ? '—' : (item.totalCreditos | number:'1.2-2') }}</td></tr> }
+      </tbody></table></div>
+    } @else { <p class="empty">Todavía no hay cierres anteriores.</p> }
+  </section>
+}

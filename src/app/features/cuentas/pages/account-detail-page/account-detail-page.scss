@@ -1,0 +1,9 @@
+:host { display: block; }
+.card { margin: 1rem 0; }
+.account-data { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem; margin: 1rem 0; }
+.account-data dt { color: var(--muted); font-size: .8rem; font-weight: 600; }
+.account-data dd { margin: .3rem 0 0; }
+.table-wrap { overflow-x: auto; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td { padding: .75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { color: var(--muted); font-size: .8rem; }

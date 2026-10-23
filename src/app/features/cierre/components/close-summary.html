@@ -1,0 +1,19 @@
+<section class="card" aria-label="Resumen del cierre">
+  <h2>Resumen del día</h2>
+  <div class="stats">
+    <div class="stat"><span class="stat-label">Fecha operativa</span><strong class="stat-value">{{ close().fechaOperativa }}</strong></div>
+    <div class="stat"><span class="stat-label">Movimientos</span><strong class="stat-value">{{ close().cantidadMovimientos }}</strong></div>
+    <div class="stat"><span class="stat-label">Estado del cierre</span><strong class="stat-value" [class.ok]="close().estado === 'COMPLETADO'" [class.warn]="close().estado === 'CON_ERROR'">@switch (close().estado) { @case ('PENDIENTE') { Pendiente } @case ('EN_CURSO') { En curso } @case ('COMPLETADO') { Completado } @case ('CON_ERROR') { Con error } }</strong></div>
+  </div>
+  @if (close().motivoError) { <p class="alert" role="alert">Motivo de la falla: {{ close().motivoError }}. El día permanece abierto para reprocesar.</p> }
+  @if (close().estado === 'COMPLETADO') {
+    <div class="totals">
+      <p><span>Total de débitos</span><strong>{{ close().totalDebitos | number:'1.2-2' }}</strong></p>
+      <p><span>Total de créditos</span><strong>{{ close().totalCreditos | number:'1.2-2' }}</strong></p>
+    </div>
+    <h3>Saldos de cierre por cuenta</h3>
+    @if (balances().length) {
+      <ul class="balances">@for (balance of balances(); track balance.account) { <li><span>{{ balance.account }}</span><strong>{{ balance.amount | number:'1.2-2' }}</strong></li> }</ul>
+    } @else { <p class="empty">No hay saldos de cierre para mostrar.</p> }
+  }
+</section>

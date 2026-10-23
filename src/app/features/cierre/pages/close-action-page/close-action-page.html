@@ -1,0 +1,21 @@
+<section class="card" aria-labelledby="action-title">
+  <h1 id="action-title" class="page-title">{{ retry ? 'Reprocesar cierre diario' : 'Ejecutar cierre diario' }}</h1>
+  @if (loading()) { <p role="status">Consultando el estado del día…</p> }
+  @else {
+    @if (error()) { <div class="alert" role="alert">{{ error() }} <button class="btn small" type="button" (click)="refresh()">Consultar de nuevo</button></div> }
+    @if (close(); as dailyClose) {
+      <p>Fecha operativa: <strong>{{ dailyClose.fechaOperativa }}</strong></p>
+      <p>Movimientos del día: <strong>{{ dailyClose.cantidadMovimientos }}</strong></p>
+      @if (dailyClose.motivoError) { <p class="alert" role="alert">Motivo de la falla: {{ dailyClose.motivoError }}</p> }
+      @if (finished()) {
+        @if (dailyClose.estado === 'COMPLETADO') { <p role="status">El cierre finalizó correctamente. Consultá los totales y saldos en el resumen.</p> }
+        @else if (dailyClose.estado === 'CON_ERROR') { <p class="alert" role="alert">El cierre falló. El día permanece abierto para reprocesar. {{ dailyClose.motivoError }}</p> }
+        @else { <p role="status">Estado actual: {{ dailyClose.estado }}. Consultá el resumen para obtener el resultado.</p> }
+      } @else if ((retry && dailyClose.estado === 'CON_ERROR') || (!retry && dailyClose.estado === 'PENDIENTE')) {
+        <p>{{ retry ? 'Se intentará nuevamente la conciliación del día abierto.' : 'Solo se puede ejecutar un cierre por fecha operativa. Confirmá para iniciar la conciliación.' }}</p>
+        <button class="btn primary" type="button" (click)="confirm()" [disabled]="submitting()">{{ submitting() ? 'Procesando…' : (retry ? 'Confirmar reproceso' : 'Confirmar cierre') }}</button>
+      } @else { <p role="status">Esta acción no está disponible para el estado actual del cierre.</p> }
+    }
+  }
+  <p class="back"><a class="btn" routerLink="/cierre">Volver al cierre diario</a></p>
+</section>
