@@ -1,5 +1,6 @@
-.nav { display: flex; flex-direction: column; gap: .4rem; padding: 1.5rem .8rem; }
-.nav a { padding: .7rem 1rem; border-radius: .6rem; color: var(--text); text-decoration: none; font-weight: 500; }
-.nav a:hover { background: var(--border); }
+.nav { display: flex; flex-direction: column; gap: .25rem; padding: .6rem; }
+.nav a { display: block; border-radius: .5rem; padding: .7rem .9rem; font-weight: 500; color: var(--text); text-decoration: none; }
+.nav a:hover { background: var(--bg); }
 .nav a.active { background: var(--primary); color: var(--surface); }
-@media (max-width: 700px) { .nav { padding: .75rem; flex-direction: row; overflow-x: auto; border-bottom: 1px solid var(--border); } .nav a { white-space: nowrap; } }
+.nav a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (max-width: 720px) { .nav { flex-direction: row; flex-wrap: wrap; } .nav a { padding: .55rem .7rem; } }

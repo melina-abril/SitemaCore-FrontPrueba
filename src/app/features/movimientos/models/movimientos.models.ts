@@ -28,12 +28,12 @@ export interface MovimientoResponse {
   movimientoOriginalId: number | null;
 }
 
-export interface ConsultaResponse {
+export interface ConsultaMovimientosResponse {
   movimientos: MovimientoResponse[];
   saldoResultante: number;
 }
 
-export interface BajaResponse {
+export interface BajaMovimientoResponse {
   id: number;
   estado: string;
   usuario: string;

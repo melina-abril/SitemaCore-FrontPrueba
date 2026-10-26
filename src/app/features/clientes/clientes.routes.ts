@@ -1,14 +1,22 @@
-import { inject } from '@angular/core';
-import { Router, Routes } from '@angular/router';
-import { CurrentUserService } from '../../core/session/current-user';
+import { Routes } from '@angular/router';
+import { supervisorGuard } from '../../core/session/supervisor-guard';
 
-export const clientesRoutes: Routes = [
-  { path: '', loadComponent: () => import('./pages/client-list-page/client-list-page').then(m => m.ClientListPage) },
-  { path: 'new', loadComponent: () => import('./pages/client-detail-page/client-detail-page').then(m => m.ClientDetailPage) },
+export const CLIENTES_ROUTES: Routes = [
   {
-    path: 'deactivate/:id',
-    canMatch: [() => inject(CurrentUserService).user().role === 'SUPERVISOR' || inject(Router).createUrlTree(['/clientes'])],
-    loadComponent: () => import('./pages/client-detail-page/client-detail-page').then(m => m.ClientDetailPage)
+    path: '',
+    loadComponent: () => import('./pages/client-list-page/client-list-page').then(module => module.ClientListPage)
   },
-  { path: ':id', loadComponent: () => import('./pages/client-detail-page/client-detail-page').then(m => m.ClientDetailPage) }
+  {
+    path: 'nuevo',
+    loadComponent: () => import('./pages/client-form-page/client-form-page').then(module => module.ClientFormPage)
+  },
+  {
+    path: ':id/baja',
+    canMatch: [supervisorGuard],
+    loadComponent: () => import('./pages/client-deactivation-page/client-deactivation-page').then(module => module.ClientDeactivationPage)
+  },
+  {
+    path: ':id',
+    loadComponent: () => import('./pages/client-form-page/client-form-page').then(module => module.ClientFormPage)
+  }
 ];

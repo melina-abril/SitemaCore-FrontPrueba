@@ -1,25 +1,41 @@
-<section class="clients-page" aria-labelledby="clients-title">
-  <header class="page-heading">
-    <div><h1 id="clients-title" class="page-title">Maestro de clientes</h1><p>Consultá los datos del maestro o registrá un cliente nuevo.</p></div>
-    <a class="btn primary" routerLink="/clientes/new">Nuevo cliente</a>
-  </header>
-
-  <form class="card search-form" (submit)="$event.preventDefault(); load()">
-    <div class="field grow"><label for="client-search">Nombre, documento o número de cliente</label><input id="client-search" type="search" [value]="search()" (input)="search.set($any($event.target).value)" placeholder="Buscar clientes"></div>
+<app-page-header title="Maestro de clientes">
+  <a class="btn primary" routerLink="/clientes/nuevo">Nuevo cliente</a>
+</app-page-header>
+<section class="card" aria-label="Búsqueda de clientes">
+  <form class="search-form" (submit)="$event.preventDefault(); search()">
+    <div class="field grow">
+      <label for="client-search">Nombre, documento o número de cliente</label>
+      <input id="client-search" type="search" #searchInput [value]="query()" (input)="query.set(searchInput.value)" placeholder="Buscar clientes" />
+    </div>
     <button class="btn primary" type="submit">Buscar</button>
+    <button class="btn" type="button" (click)="clearSearch()">Limpiar</button>
   </form>
-
-  @if (loading()) {
-    <p role="status">Cargando clientes…</p>
-  } @else if (error()) {
-    <div class="alert" role="alert">{{ error() }} <button class="btn small" type="button" (click)="load()">Reintentar</button></div>
-  } @else if (clients().length === 0) {
-    <div class="card empty">No se encontraron clientes para esta búsqueda.</div>
-  } @else {
-    <div class="card table-wrap"><table><thead><tr><th scope="col">Número</th><th scope="col">Nombre</th><th scope="col">Documento</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead><tbody>
-      @for (client of clients(); track client.id) {
-        <tr><td>{{ client.customerNumber }}</td><td>{{ client.name }}</td><td>{{ client.document }}</td><td><span class="chip">{{ client.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}</span></td><td class="actions"><a [routerLink]="['/clientes', client.id]">Ver y editar</a><a routerLink="/cuentas" [queryParams]="{ clienteId: client.id }">Cuentas</a>@if (session.user().role === 'SUPERVISOR' && client.status === 'ACTIVE') { <a [routerLink]="['/clientes/deactivate', client.id]">Dar de baja</a> }</td></tr>
-      }
-    </tbody></table></div>
-  }
 </section>
+@if (state(); as result) {
+  @switch (result.status) {
+    @case ('loading') { <app-loading-state /> }
+    @case ('error') { <app-error-alert [message]="result.message" /> <button class="btn" type="button" (click)="search()">Reintentar</button> }
+    @case ('empty') { <app-empty-state message="No se encontraron clientes para esta búsqueda." /> }
+    @case ('ready') {
+      <section class="card" aria-label="Clientes encontrados">
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th scope="col">N.º de cliente</th><th scope="col">Nombre</th><th scope="col">Documento</th><th scope="col">Contacto</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+            <tbody>
+              @for (client of result.data; track client.id) {
+                <tr>
+                  <td>{{ client.customerNumber }}</td>
+                  <td>{{ client.name }}</td>
+                  <td>{{ client.document }}</td>
+                  <td>{{ client.email || client.phone || 'Sin contacto' }}</td>
+                  <td><span class="chip">{{ client.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}</span></td>
+                  <td><div class="actions"><a [routerLink]="['/clientes', client.id]">Ver y editar</a><a [routerLink]="['/cuentas']" [queryParams]="{ clienteId: client.id }">Cuentas</a>@if (currentUser.isSupervisor() && client.status === 'ACTIVE') { <a [routerLink]="['/clientes', client.id, 'baja']">Dar de baja</a> }</div></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  }
+}

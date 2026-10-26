@@ -1,0 +1,27 @@
+<app-page-header title="Cuentas del cliente"><a class="btn" routerLink="/clientes">Ir a clientes</a></app-page-header>
+<p class="intro">Consultá las cuentas de un cliente y abrí una nueva para un cliente activo. El saldo resulta de sus movimientos y no se edita manualmente.</p>
+<section class="card" aria-label="Buscar cuentas">
+  <form class="search-form" (ngSubmit)="load()">
+    <div class="field grow"><label for="client-id">Número de cliente</label><input id="client-id" name="clientId" type="number" min="1" step="1" required [(ngModel)]="clientId"></div>
+    <button class="btn primary" type="submit">Buscar cuentas</button>
+  </form>
+  <p class="hint">En el modo demostración podés consultar el cliente 101 o 102.</p>
+</section>
+<section aria-label="Cuentas encontradas">
+  <h2>Cuentas</h2>
+  @if (loading()) { <app-loading-state /> }
+  @else if (error()) { <app-error-alert [message]="error()" /> }
+  @else if (accounts().length === 0) { <app-empty-state message="Este cliente no tiene cuentas." /> }
+  @else { <div class="account-list">@for (account of accounts(); track account.id) { <app-account-card [account]="account" /> }</div> }
+</section>
+<section class="card" aria-labelledby="open-heading">
+  <h2 id="open-heading">Abrir cuenta</h2>
+  <p>Solo se pueden abrir cuentas para clientes activos.</p>
+  <form class="open-form" (ngSubmit)="openAccount()">
+    <div class="field"><label for="account-type">Tipo de cuenta</label><select id="account-type" name="type" [(ngModel)]="newType"><option value="AHORRO">Caja de ahorro</option><option value="CORRIENTE">Cuenta corriente</option></select></div>
+    <div class="field"><label for="account-currency">Moneda</label><select id="account-currency" name="currency" [(ngModel)]="newCurrency"><option value="ARS">Pesos (ARS)</option><option value="USD">Dólares (USD)</option></select></div>
+    <button class="btn primary" type="submit" [disabled]="saving() || !clientId">{{ saving() ? 'Abriendo…' : 'Abrir cuenta' }}</button>
+  </form>
+  @if (actionError()) { <app-error-alert [message]="actionError()" /> }
+  @if (notice()) { <p role="status" class="success">{{ notice() }}</p> }
+</section>

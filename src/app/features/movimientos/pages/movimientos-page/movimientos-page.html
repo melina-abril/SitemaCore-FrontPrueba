@@ -1,46 +1,59 @@
-<section aria-labelledby="movements-title">
-  <header class="page-heading">
-    <div><h1 id="movements-title" class="page-title">Registro de movimientos</h1><p class="muted">Consulte operaciones por cuenta y registre débitos o créditos del día abierto.</p></div>
-    <a class="btn" routerLink="/cuentas">Ver cuentas</a>
-  </header>
+<app-page-header [title]="adjustmentId === null ? 'Registro de movimientos' : 'Ajustar movimiento'" />
 
-  @if (error()) { <div class="alert" role="alert">{{ error() }}</div> }
-  @if (notice()) { <p class="card" role="status">{{ notice() }}</p> }
-
-  <section class="card" aria-labelledby="form-title">
-    <h2 id="form-title">{{ editingId() === null ? 'Nuevo movimiento' : 'Modificar movimiento' }}</h2>
-    <p class="muted">El saldo se calcula a partir de los movimientos y no se modifica manualmente.</p>
-    <form (ngSubmit)="save()" #movementForm="ngForm">
+@if (adjustmentId !== null) {
+  <a routerLink="/movimientos" class="back-link">← Volver a movimientos</a>
+  <section class="card form-card" aria-labelledby="adjustment-title">
+    <h2 id="adjustment-title">Ajuste del movimiento Nº {{ adjustmentId }}</h2>
+    <p>El movimiento cerrado permanece intacto. El ajuste se registra en el día operativo abierto.</p>
+    <form #adjustmentForm="ngForm" (ngSubmit)="saveAdjustment()">
       <div class="form-grid">
-        <div class="field"><label for="account">Número de cuenta</label><input id="account" name="account" type="number" min="1" step="1" required [(ngModel)]="form.cuentaId" /></div>
-        <div class="field"><label for="type">Tipo</label><select id="type" name="type" required [(ngModel)]="form.tipo"><option value="CREDITO">Crédito</option><option value="DEBITO">Débito</option></select></div>
-        <div class="field"><label for="amount">Importe</label><input id="amount" name="amount" type="number" min="0.01" step="0.01" required [(ngModel)]="form.importe" /></div>
-        <div class="field"><label for="date">Fecha operativa</label><input id="date" name="date" type="date" required [(ngModel)]="form.fechaOperativa" /></div>
-        <div class="field grow"><label for="concept">Concepto</label><input id="concept" name="concept" maxlength="200" required [(ngModel)]="form.concepto" /></div>
+        <div class="field"><label for="direction">Dirección</label><select id="direction" name="direction" [(ngModel)]="adjustment.direccion" required><option value="CREDITO">Crédito</option><option value="DEBITO">Débito</option></select></div>
+        <div class="field"><label for="adjustment-amount">Importe</label><input id="adjustment-amount" name="amount" type="number" min="0.01" step="0.01" [(ngModel)]="adjustment.importe" required></div>
+        <div class="field grow"><label for="adjustment-concept">Concepto</label><input id="adjustment-concept" name="concept" type="text" maxlength="200" [(ngModel)]="adjustment.concepto" required></div>
       </div>
-      <div class="actions"><button class="btn primary" type="submit" [disabled]="movementForm.invalid || saving()">{{ saving() ? 'Guardando…' : editingId() === null ? 'Registrar movimiento' : 'Guardar cambios' }}</button>@if (editingId() !== null) { <button class="btn" type="button" (click)="cancel()">Cancelar</button> }</div>
+      <button class="btn primary" type="submit" [disabled]="adjustmentForm.invalid || saving()">{{ saving() ? 'Guardando…' : 'Registrar ajuste' }}</button>
     </form>
   </section>
+} @else {
+  <section class="card form-card" aria-labelledby="form-title">
+    <h2 id="form-title">{{ editingId() === null ? 'Nuevo movimiento' : 'Modificar movimiento Nº ' + editingId() }}</h2>
+    <form #movementForm="ngForm" (ngSubmit)="save()">
+      <div class="form-grid">
+        <div class="field"><label for="account">Número de cuenta</label><input id="account" name="account" type="number" min="1" step="1" [(ngModel)]="form.cuentaId" required></div>
+        <div class="field"><label for="type">Tipo</label><select id="type" name="type" [(ngModel)]="form.tipo" required><option value="CREDITO">Crédito</option><option value="DEBITO">Débito</option></select></div>
+        <div class="field"><label for="amount">Importe</label><input id="amount" name="amount" type="number" min="0.01" step="0.01" [(ngModel)]="form.importe" required></div>
+        <div class="field"><label for="date">Fecha operativa</label><input id="date" name="date" type="date" [(ngModel)]="form.fechaOperativa" required></div>
+        <div class="field grow"><label for="concept">Concepto</label><input id="concept" name="concept" type="text" maxlength="200" [(ngModel)]="form.concepto" required></div>
+      </div>
+      <div class="actions"><button class="btn primary" type="submit" [disabled]="movementForm.invalid || saving()">{{ saving() ? 'Guardando…' : editingId() === null ? 'Registrar' : 'Guardar cambios' }}</button>@if (editingId() !== null) { <button class="btn" type="button" (click)="cancelEdit()">Cancelar edición</button> }</div>
+    </form>
+  </section>
+}
 
-  <section class="card" aria-labelledby="search-title">
-    <h2 id="search-title">Consulta de movimientos</h2>
-    <form class="form-grid" (ngSubmit)="search()">
-      <div class="field"><label for="filter-account">Número de cuenta</label><input id="filter-account" name="filterAccount" type="number" min="1" step="1" [(ngModel)]="filters.cuentaId" /></div>
-      <div class="field"><label for="from">Desde</label><input id="from" name="from" type="date" [(ngModel)]="filters.desde" /></div>
-      <div class="field"><label for="until">Hasta</label><input id="until" name="until" type="date" [(ngModel)]="filters.hasta" /></div>
-      <div class="actions"><button class="btn primary" type="submit" [disabled]="loading()">Buscar</button></div>
-    </form>
-    @if (loading()) { <p role="status">Cargando movimientos…</p> }
-    @else if (result(); as data) {
-      @if (filters.cuentaId) { <p class="stat">Saldo resultante de la cuenta: <strong>{{ data.saldoResultante.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</strong></p> }
-      @if (data.movimientos.length === 0) { <p class="empty">No hay movimientos para los filtros seleccionados.</p> }
-      @else {
-        <div class="table-scroll"><table><caption class="sr-only">Movimientos encontrados</caption><thead><tr><th scope="col">Fecha</th><th scope="col">Cuenta</th><th scope="col">Tipo</th><th scope="col">Concepto</th><th scope="col">Importe</th><th scope="col">Saldo</th><th scope="col">Estado</th><th scope="col">Usuario</th><th scope="col">Acciones</th></tr></thead><tbody>
-          @for (item of data.movimientos; track item.id) {
-            <tr><td>{{ item.fechaOperativa }}</td><td>{{ item.cuentaId }}</td><td>{{ item.tipo === 'DEBITO' ? 'Débito' : item.tipo === 'CREDITO' ? 'Crédito' : 'Ajuste' }}</td><td>{{ item.concepto }}@if (item.movimientoOriginalId !== null) { <small> (original: {{ item.movimientoOriginalId }})</small> }</td><td>{{ item.importe.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</td><td>{{ item.saldoResultante.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</td><td><span class="chip">{{ item.cerrado ? 'Cerrado' : 'Abierto' }}</span></td><td>{{ item.usuario }}</td><td><div class="row-actions">@if (!item.cerrado) { <button type="button" class="btn small" (click)="edit(item)">Modificar</button><button type="button" class="btn danger small" (click)="remove(item)">Dar de baja</button> } @else if (session.user().role === 'SUPERVISOR') { <a class="btn small" [routerLink]="['ajustar', item.id]">Registrar ajuste</a> } @else { <span class="muted">Solo lectura</span> }</div></td></tr>
-          }
-        </tbody></table></div>
+@if (actionError()) { <app-error-alert [message]="actionError()" /> }
+@if (notice()) { <p class="card success-message" role="status">{{ notice() }}</p> }
+
+<section class="card" aria-labelledby="list-title">
+  <h2 id="list-title">Consulta de movimientos</h2>
+  <form class="form-grid filters" (ngSubmit)="load()">
+    <div class="field"><label for="filter-account">Cuenta</label><input id="filter-account" name="filterAccount" type="number" min="1" step="1" [(ngModel)]="filterCuentaId" placeholder="Todas"></div>
+    <div class="field"><label for="from">Desde</label><input id="from" name="from" type="date" [(ngModel)]="filterDesde"></div>
+    <div class="field"><label for="to">Hasta</label><input id="to" name="to" type="date" [(ngModel)]="filterHasta"></div>
+    <button class="btn primary" type="submit">Buscar</button>
+  </form>
+  @if (state().status === 'loading') {
+    <app-loading-state />
+  } @else if (state().status === 'error') {
+    <app-error-alert [message]="state().status === 'error' ? state().message : ''" />
+    <button type="button" class="btn" (click)="load()">Reintentar</button>
+  } @else if (state().status === 'empty') {
+    <app-empty-state message="No hay movimientos para los filtros seleccionados." />
+  } @else if (state().status === 'ready') {
+    @if (state().status === 'ready' && filterCuentaId !== null) { <p class="balance">Saldo resultante de la cuenta: {{ state().data.saldoResultante | number:'1.2-2' }}</p> }
+    <div class="table-wrap"><table><thead><tr><th scope="col">Fecha</th><th scope="col">Cuenta</th><th scope="col">Tipo</th><th scope="col">Concepto</th><th scope="col">Importe</th><th scope="col">Saldo resultante</th><th scope="col">Estado</th><th scope="col">Usuario / registro</th><th scope="col">Acciones</th></tr></thead><tbody>
+      @for (movement of state().status === 'ready' ? state().data.movimientos : []; track movement.id) {
+        <tr><td>{{ movement.fechaOperativa }}</td><td>{{ movement.cuentaId }}</td><td>{{ movement.tipo === 'AJUSTE' ? 'Ajuste' : movement.tipo === 'DEBITO' ? 'Débito' : 'Crédito' }}</td><td>{{ movement.concepto }} @if (movement.movimientoOriginalId !== null) { <small>Original Nº {{ movement.movimientoOriginalId }}</small> }</td><td>{{ movement.importe | number:'1.2-2' }}</td><td>{{ movement.saldoResultante | number:'1.2-2' }}</td><td><span class="chip">{{ movement.cerrado ? 'Cerrado' : 'Abierto' }}</span></td><td>{{ movement.usuario }}<small>{{ movement.registradoEn }}</small></td><td><div class="row-actions">@if (!movement.cerrado && movement.tipo !== 'AJUSTE' && adjustmentId === null) { <button class="btn small" type="button" (click)="edit(movement)">Modificar</button><button class="btn danger small" type="button" [disabled]="saving()" (click)="remove(movement)">Dar de baja</button> } @if (movement.cerrado && currentUser.isSupervisor()) { <a class="btn small" [routerLink]="['/movimientos/ajustes', movement.id]">Ajustar</a> }</div></td></tr>
       }
-    }
-  </section>
+    </tbody></table></div>
+  }
 </section>

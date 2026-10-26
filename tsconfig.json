@@ -5,11 +5,12 @@
     "strict": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "experimentalDecorators": true,
-    "module": "preserve",
     "moduleResolution": "bundler",
+    "module": "preserve",
     "target": "ES2022",
     "lib": ["ES2022", "dom"],
     "useDefineForClassFields": false

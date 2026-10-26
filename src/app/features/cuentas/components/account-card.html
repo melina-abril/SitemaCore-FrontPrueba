@@ -1,12 +1,11 @@
 <article class="card account-card">
   <div>
-    <h3>Cuenta {{ account().numero }}</h3>
+    <h2>{{ account().numero }}</h2>
     <p>{{ account().tipo === 'AHORRO' ? 'Caja de ahorro' : 'Cuenta corriente' }} · {{ account().moneda }}</p>
+  </div>
+  <div class="account-meta">
     <span class="chip">{{ account().estado === 'ACTIVA' ? 'Activa' : 'Cerrada' }}</span>
+    <strong>{{ account().saldo | currency:account().moneda:'symbol':'1.2-2':'es' }}</strong>
   </div>
-  <div class="account-balance">
-    <span>Saldo actual</span>
-    <strong>{{ account().saldo | number:'1.2-2' }} {{ account().moneda }}</strong>
-    <a class="btn small" [routerLink]="['/cuentas', account().id]">Ver detalle</a>
-  </div>
+  <a class="btn" [routerLink]="['/cuentas', account().id]" [attr.aria-label]="'Ver detalle de la cuenta ' + account().numero">Ver detalle</a>
 </article>

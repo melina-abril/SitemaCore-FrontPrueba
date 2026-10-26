@@ -1,90 +1,99 @@
-import { AjusteRequest, BajaResponse, ConsultaResponse, MovimientoFilters, MovimientoRequest, MovimientoResponse } from '../models/movimientos.models';
+import { AjusteRequest, BajaMovimientoResponse, ConsultaMovimientosResponse, MovimientoFilters, MovimientoRequest, MovimientoResponse, TipoMovimiento } from '../models/movimientos.models';
 
-const today = (): string => new Date().toISOString().slice(0, 10);
-const yesterday = (): string => new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-const openingBalances: Record<number, number> = { 1001: 4000, 1002: 1000 };
+const operationalDate = '2026-06-15';
+const recordedAt = '2026-06-15T10:30:00-03:00';
 let nextId = 5;
-
-// Datos de demostración: se reemplazan al conectar el backend.
-let movements: MovimientoResponse[] = [
-  { id: 1, cuentaId: 1001, tipo: 'CREDITO', importe: 500, fechaOperativa: yesterday(), concepto: 'Depósito en caja', usuario: 'operador.demo', registradoEn: `${yesterday()}T10:30:00-03:00`, cerrado: true, saldoResultante: 4500, movimientoOriginalId: null },
-  { id: 2, cuentaId: 1001, tipo: 'DEBITO', importe: 200, fechaOperativa: today(), concepto: 'Pago a proveedor', usuario: 'operador.demo', registradoEn: `${today()}T09:15:00-03:00`, cerrado: false, saldoResultante: 4300, movimientoOriginalId: null },
-  { id: 3, cuentaId: 1001, tipo: 'CREDITO', importe: 800, fechaOperativa: today(), concepto: 'Cobro de factura', usuario: 'operador.demo', registradoEn: `${today()}T11:20:00-03:00`, cerrado: false, saldoResultante: 5100, movimientoOriginalId: null },
-  { id: 4, cuentaId: 1002, tipo: 'CREDITO', importe: 250, fechaOperativa: today(), concepto: 'Transferencia recibida', usuario: 'operador.demo', registradoEn: `${today()}T12:05:00-03:00`, cerrado: false, saldoResultante: 1250, movimientoOriginalId: null }
+const directions = new Map<number, TipoMovimiento>();
+const movements: MovimientoResponse[] = [
+  { id: 1, cuentaId: 101, tipo: 'CREDITO', importe: 1000, fechaOperativa: '2026-06-14', concepto: 'Depósito inicial', usuario: 'María Fernández', registradoEn: '2026-06-14T09:00:00-03:00', cerrado: true, saldoResultante: 1000, movimientoOriginalId: null },
+  { id: 2, cuentaId: 101, tipo: 'DEBITO', importe: 150, fechaOperativa: '2026-06-14', concepto: 'Pago de servicio', usuario: 'María Fernández', registradoEn: '2026-06-14T11:15:00-03:00', cerrado: true, saldoResultante: 850, movimientoOriginalId: null },
+  { id: 3, cuentaId: 101, tipo: 'CREDITO', importe: 200, fechaOperativa: operationalDate, concepto: 'Transferencia recibida', usuario: 'María Fernández', registradoEn: recordedAt, cerrado: false, saldoResultante: 1050, movimientoOriginalId: null },
+  { id: 4, cuentaId: 102, tipo: 'CREDITO', importe: 300, fechaOperativa: operationalDate, concepto: 'Depósito en cuenta', usuario: 'María Fernández', registradoEn: recordedAt, cerrado: false, saldoResultante: 300, movimientoOriginalId: null }
 ];
 
-function sorted(items: MovimientoResponse[]): MovimientoResponse[] {
-  return [...items].sort((a, b) => a.fechaOperativa.localeCompare(b.fechaOperativa) || a.registradoEn.localeCompare(b.registradoEn) || a.id - b.id);
+function copy(movement: MovimientoResponse): MovimientoResponse {
+  return { ...movement };
 }
 
-function recalculate(items: MovimientoResponse[]): MovimientoResponse[] {
-  const balances = { ...openingBalances };
-  return sorted(items).map(item => {
-    const previous = balances[item.cuentaId] ?? 0;
-    const balance = Math.round((previous + (item.tipo === 'DEBITO' ? -item.importe : item.importe)) * 100) / 100;
-    if (balance < 0) throw new Error('El débito no puede dejar la cuenta con saldo negativo.');
-    balances[item.cuentaId] = balance;
-    return { ...item, saldoResultante: balance };
-  });
+function direction(movement: MovimientoResponse): TipoMovimiento {
+  return movement.tipo === 'AJUSTE' ? (directions.get(movement.id) ?? 'CREDITO') : movement.tipo;
 }
 
-function checkRequest(request: MovimientoRequest): void {
-  if (!Number.isInteger(request.cuentaId) || request.cuentaId <= 0) throw new Error('Ingrese una cuenta válida.');
-  if (request.tipo !== 'DEBITO' && request.tipo !== 'CREDITO') throw new Error('Seleccione débito o crédito.');
-  if (!Number.isFinite(request.importe) || request.importe <= 0) throw new Error('El importe debe ser mayor que cero.');
-  if (!request.concepto.trim()) throw new Error('Ingrese un concepto.');
-  if (!request.fechaOperativa || request.fechaOperativa < today()) throw new Error('No se aceptan movimientos en un día cerrado.');
+function balance(cuentaId: number, excludingId?: number): number {
+  return movements.filter(item => item.cuentaId === cuentaId && item.id !== excludingId)
+    .reduce((total, item) => total + (direction(item) === 'DEBITO' ? -item.importe : item.importe), 0);
 }
 
-export function mockConsult(filters: MovimientoFilters): ConsultaResponse {
-  const items = movements.filter(item =>
+function recalculate(): void {
+  const balances = new Map<number, number>();
+  for (const item of movements) {
+    const value = (balances.get(item.cuentaId) ?? 0) + (direction(item) === 'DEBITO' ? -item.importe : item.importe);
+    balances.set(item.cuentaId, value);
+    item.saldoResultante = value;
+  }
+}
+
+function validateAmount(importe: number): void {
+  if (!Number.isFinite(importe) || importe <= 0) throw new Error('El importe debe ser mayor que cero.');
+}
+
+function find(id: number): MovimientoResponse {
+  const movement = movements.find(item => item.id === id);
+  if (!movement) throw new Error('No se encontró el movimiento.');
+  return movement;
+}
+
+export function mockConsultarMovimientos(filters: MovimientoFilters): ConsultaMovimientosResponse {
+  const filtered = movements.filter(item =>
     (filters.cuentaId === undefined || item.cuentaId === filters.cuentaId) &&
     (!filters.desde || item.fechaOperativa >= filters.desde) &&
-    (!filters.hasta || item.fechaOperativa <= filters.hasta)
-  );
-  const accountHistory = filters.cuentaId === undefined ? [] : movements.filter(item => item.cuentaId === filters.cuentaId && (!filters.hasta || item.fechaOperativa <= filters.hasta));
-  return { movimientos: items.map(item => ({ ...item })), saldoResultante: filters.cuentaId === undefined ? 0 : (accountHistory.at(-1)?.saldoResultante ?? openingBalances[filters.cuentaId] ?? 0) };
+    (!filters.hasta || item.fechaOperativa <= filters.hasta));
+  return { movimientos: filtered.map(copy), saldoResultante: filters.cuentaId === undefined ? 0 : balance(filters.cuentaId) };
 }
 
-export function mockRegister(request: MovimientoRequest): MovimientoResponse {
-  checkRequest(request);
-  const item: MovimientoResponse = { ...request, id: nextId, usuario: 'operador.demo', registradoEn: new Date().toISOString(), cerrado: false, saldoResultante: 0, movimientoOriginalId: null };
-  const updated = recalculate([...movements, item]);
-  nextId++;
-  movements = updated;
-  return { ...updated.find(movement => movement.id === item.id)! };
+export function mockRegistrarMovimiento(request: MovimientoRequest, usuario: string): MovimientoResponse {
+  validateAmount(request.importe);
+  if (!Number.isInteger(request.cuentaId) || request.cuentaId <= 0) throw new Error('Indique una cuenta válida.');
+  if (request.tipo !== 'DEBITO' && request.tipo !== 'CREDITO') throw new Error('Seleccione débito o crédito.');
+  if (!request.concepto.trim()) throw new Error('El concepto es obligatorio.');
+  if (request.fechaOperativa < operationalDate) throw new Error('No se aceptan movimientos de días cerrados.');
+  if (request.tipo === 'DEBITO' && balance(request.cuentaId) < request.importe) throw new Error('El débito dejaría la cuenta con saldo negativo.');
+  const movement: MovimientoResponse = { id: nextId++, ...request, concepto: request.concepto.trim(), usuario, registradoEn: recordedAt, cerrado: false, saldoResultante: 0, movimientoOriginalId: null };
+  movements.push(movement);
+  recalculate();
+  return copy(movement);
 }
 
-export function mockUpdate(id: number, request: MovimientoRequest): MovimientoResponse {
-  const original = movements.find(item => item.id === id);
-  if (!original) throw new Error('No se encontró el movimiento.');
-  if (original.cerrado) throw new Error('Un movimiento cerrado solo se corrige con un ajuste.');
-  checkRequest(request);
-  const updated = recalculate(movements.map(item => item.id === id ? { ...item, ...request, usuario: 'operador.demo', registradoEn: new Date().toISOString() } : item));
-  movements = updated;
-  return { ...updated.find(item => item.id === id)! };
+export function mockModificarMovimiento(id: number, request: MovimientoRequest, usuario: string): MovimientoResponse {
+  const existing = find(id);
+  if (existing.cerrado) throw new Error('Un movimiento cerrado solo se corrige mediante un ajuste.');
+  validateAmount(request.importe);
+  if (!Number.isInteger(request.cuentaId) || request.cuentaId <= 0 || !request.concepto.trim() || (request.tipo !== 'DEBITO' && request.tipo !== 'CREDITO')) throw new Error('Revise los datos del movimiento.');
+  if (request.fechaOperativa < operationalDate) throw new Error('No se aceptan movimientos de días cerrados.');
+  if (request.tipo === 'DEBITO' && balance(request.cuentaId, id) < request.importe) throw new Error('El débito dejaría la cuenta con saldo negativo.');
+  Object.assign(existing, request, { concepto: request.concepto.trim(), usuario, registradoEn: recordedAt });
+  recalculate();
+  return copy(existing);
 }
 
-export function mockDelete(id: number): BajaResponse {
-  const original = movements.find(item => item.id === id);
-  if (!original) throw new Error('No se encontró el movimiento.');
-  if (original.cerrado) throw new Error('Un movimiento cerrado solo se corrige con un ajuste.');
-  movements = recalculate(movements.filter(item => item.id !== id));
-  return { id, estado: 'BAJA', usuario: 'operador.demo', registradoEn: new Date().toISOString() };
+export function mockEliminarMovimiento(id: number, usuario: string): BajaMovimientoResponse {
+  const existing = find(id);
+  if (existing.cerrado) throw new Error('No se puede dar de baja un movimiento cerrado.');
+  movements.splice(movements.indexOf(existing), 1);
+  directions.delete(id);
+  recalculate();
+  return { id, estado: 'BAJA', usuario, registradoEn: recordedAt };
 }
 
-export function mockAdjust(id: number, request: AjusteRequest): MovimientoResponse {
-  const original = movements.find(item => item.id === id);
-  if (!original) throw new Error('No se encontró el movimiento original.');
-  if (!original.cerrado) throw new Error('Los ajustes se reservan para movimientos cerrados.');
-  if (!['DEBITO', 'CREDITO'].includes(request.direccion) || !Number.isFinite(request.importe) || request.importe <= 0 || !request.concepto.trim()) throw new Error('Complete la dirección, el importe positivo y el concepto del ajuste.');
-  const item: MovimientoResponse = { id: nextId, cuentaId: original.cuentaId, tipo: 'AJUSTE', importe: request.importe, fechaOperativa: today(), concepto: request.concepto.trim(), usuario: 'supervisor.demo', registradoEn: new Date().toISOString(), cerrado: false, saldoResultante: 0, movimientoOriginalId: id };
-  const balances = movements.filter(movement => movement.cuentaId === original.cuentaId);
-  const current = balances.at(-1)?.saldoResultante ?? openingBalances[original.cuentaId] ?? 0;
-  const result = Math.round((current + (request.direccion === 'DEBITO' ? -request.importe : request.importe)) * 100) / 100;
-  if (result < 0) throw new Error('El ajuste no puede dejar la cuenta con saldo negativo.');
-  item.saldoResultante = result;
-  movements = sorted([...movements, item]);
-  nextId++;
-  return { ...item };
+export function mockAjustarMovimiento(id: number, request: AjusteRequest, usuario: string): MovimientoResponse {
+  const original = find(id);
+  if (!original.cerrado) throw new Error('Los ajustes se utilizan para corregir movimientos cerrados.');
+  validateAmount(request.importe);
+  if (!request.concepto.trim() || (request.direccion !== 'DEBITO' && request.direccion !== 'CREDITO')) throw new Error('Revise la dirección y el concepto del ajuste.');
+  if (request.direccion === 'DEBITO' && balance(original.cuentaId) < request.importe) throw new Error('El ajuste dejaría la cuenta con saldo negativo.');
+  const adjustment: MovimientoResponse = { id: nextId++, cuentaId: original.cuentaId, tipo: 'AJUSTE', importe: request.importe, fechaOperativa: operationalDate, concepto: request.concepto.trim(), usuario, registradoEn: recordedAt, cerrado: false, saldoResultante: 0, movimientoOriginalId: id };
+  directions.set(adjustment.id, request.direccion);
+  movements.push(adjustment);
+  recalculate();
+  return copy(adjustment);
 }

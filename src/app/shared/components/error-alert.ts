@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-error-alert',
   standalone: true,
-  template: '<div class="alert" role="alert">{{ message() }}</div>',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  template: '<div class="alert" role="alert">{{ message() }}</div>'
 })
 export class ErrorAlert {
-  readonly message = input('Ocurrió un error. Inténtalo nuevamente.');
+  readonly message = input.required<string>();
 }

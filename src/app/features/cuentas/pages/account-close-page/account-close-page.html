@@ -1,0 +1,17 @@
+<app-page-header title="Cerrar cuenta" />
+@if (loading()) { <app-loading-state /> }
+@else {
+  @if (error()) { <app-error-alert [message]="error()" /> }
+  @if (account(); as item) {
+    <section class="card" aria-label="Confirmación de cierre">
+      <h2>Cuenta {{ item.numero }}</h2>
+      @if (item.estado !== 'ACTIVA' || item.saldo !== 0) {
+        <p>Esta cuenta no se puede cerrar: debe estar activa y tener saldo cero.</p>
+      } @else {
+        <p>El cierre de la cuenta no se puede deshacer desde esta pantalla. ¿Querés continuar?</p>
+        <button class="btn danger" type="button" [disabled]="saving()" (click)="confirmClose()">{{ saving() ? 'Cerrando…' : 'Confirmar cierre' }}</button>
+      }
+      <a class="btn" [routerLink]="['/cuentas', item.id]">Volver al detalle</a>
+    </section>
+  } @else { <a class="btn" routerLink="/cuentas">Volver a cuentas</a> }
+}

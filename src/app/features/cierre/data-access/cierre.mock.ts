@@ -1,9 +1,9 @@
 import { CierreDto } from '../models/cierre.models';
 
-export const mockCierreActual: CierreDto = {
-  fechaOperativa: '2026-02-25',
+export const MOCK_CIERRE: CierreDto = {
+  fechaOperativa: '2026-07-15',
   estado: 'PENDIENTE',
-  cantidadMovimientos: 184,
+  cantidadMovimientos: 18,
   totalDebitos: 0,
   totalCreditos: 0,
   saldosCierre: {},
@@ -11,25 +11,17 @@ export const mockCierreActual: CierreDto = {
   cerradoEn: null
 };
 
-export const mockHistorialCierres: CierreDto[] = [
+export const MOCK_HISTORIAL: CierreDto[] = [
   {
-    fechaOperativa: '2026-02-24',
-    estado: 'COMPLETADO',
-    cantidadMovimientos: 172,
-    totalDebitos: 128450.75,
-    totalCreditos: 149800.5,
-    saldosCierre: { ARS: 2468120.8, USD: 38250 },
-    motivoError: null,
-    cerradoEn: '2026-02-24T20:15:00Z'
+    fechaOperativa: '2026-07-14', estado: 'COMPLETADO', cantidadMovimientos: 23,
+    totalDebitos: 12450.75, totalCreditos: 18600,
+    saldosCierre: { 'CTA-1001': 24800.25, 'CTA-1002': 7300 },
+    motivoError: null, cerradoEn: '2026-07-14T20:15:00Z'
   },
   {
-    fechaOperativa: '2026-02-23',
-    estado: 'COMPLETADO',
-    cantidadMovimientos: 156,
-    totalDebitos: 96500,
-    totalCreditos: 112340.25,
-    saldosCierre: { ARS: 2446771.05, USD: 38250 },
-    motivoError: null,
-    cerradoEn: '2026-02-23T20:09:00Z'
+    fechaOperativa: '2026-07-13', estado: 'COMPLETADO', cantidadMovimientos: 16,
+    totalDebitos: 8700, totalCreditos: 10250.50,
+    saldosCierre: { 'CTA-1001': 18651, 'CTA-1002': 7300 },
+    motivoError: null, cerradoEn: '2026-07-13T20:09:00Z'
   }
 ];

@@ -1,8 +1,9 @@
-<nav class="nav" aria-label="Navegación principal">
-  @for (link of links; track link.path) {
-    <a [routerLink]="link.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">{{ link.label }}</a>
-  }
-  @if (session.isSupervisor()) {
+<nav class="nav card" aria-label="Navegación principal">
+  <a routerLink="/inicio" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Inicio</a>
+  <a routerLink="/clientes" routerLinkActive="active">Clientes</a>
+  <a routerLink="/cuentas" routerLinkActive="active">Cuentas</a>
+  <a routerLink="/movimientos" routerLinkActive="active">Movimientos</a>
+  @if (isSupervisor()) {
     <a routerLink="/cierre" routerLinkActive="active">Cierre diario</a>
   }
 </nav>

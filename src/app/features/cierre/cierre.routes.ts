@@ -1,16 +1,10 @@
-import { inject } from '@angular/core';
-import { CanMatchFn, Router, Routes } from '@angular/router';
-import { CurrentUserService } from '../../core/session/current-user';
+import { Routes } from '@angular/router';
+import { supervisorGuard } from '../../core/session/supervisor-guard';
 
-const supervisorOnly: CanMatchFn = () => {
-  const user = inject(CurrentUserService).user();
-  return user.role === 'SUPERVISOR' ? true : inject(Router).createUrlTree(['/inicio']);
-};
-
-export const routes: Routes = [
+export const CIERRE_ROUTES: Routes = [
   {
     path: '',
-    canMatch: [supervisorOnly],
-    loadComponent: () => import('./pages/cierre-page/cierre-page').then(module => module.CierrePage)
+    canMatch: [supervisorGuard],
+    loadComponent: () => import('./pages/cierre-page/cierre-page').then(m => m.CierrePage)
   }
 ];

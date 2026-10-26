@@ -1,20 +1,30 @@
-<section>
-  <a routerLink="/cuentas">← Volver a cuentas</a>
-  @if (loading()) { <p role="status">Cargando cuenta…</p> }
-  @else if (error()) { <div class="alert" role="alert">{{ error() }} <button type="button" class="btn small" (click)="load()">Reintentar</button></div> }
-  @else if (account(); as detail) {
-    <header class="detail-heading"><div><h1 class="page-title">Cuenta {{ detail.numero }}</h1><p>Cliente {{ detail.clienteId }} · {{ detail.tipo === 'AHORRO' ? 'Caja de ahorro' : 'Cuenta corriente' }} · {{ detail.moneda }}</p></div><span class="chip big">{{ detail.estado === 'ACTIVA' ? 'Activa' : 'Cerrada' }}</span></header>
-    <div class="card balance"><span>Saldo actual</span><strong>{{ detail.saldo | number:'1.2-2' }} {{ detail.moneda }}</strong><small>El saldo se calcula a partir de los movimientos; no puede editarse manualmente.</small></div>
-    @if (currentUser.user().role === 'SUPERVISOR' && detail.estado === 'ACTIVA') {
-      <p><a class="btn danger" [routerLink]="['/cuentas/cerrar', detail.id]">Cerrar cuenta</a></p>
-      @if (detail.saldo !== 0) { <p class="note">Para cerrar esta cuenta, su saldo debe ser cero.</p> }
+<app-page-header title="Detalle de cuenta"><a class="btn" routerLink="/cuentas" [queryParams]="{ clienteId: account()?.clienteId }">Volver a cuentas</a></app-page-header>
+@if (loading()) { <app-loading-state /> }
+@else if (error()) { <app-error-alert [message]="error()" /> }
+@else if (account(); as item) {
+  <section class="card" aria-label="Datos de la cuenta">
+    <div class="heading"><h2>{{ item.numero }}</h2><span class="chip">{{ item.estado === 'ACTIVA' ? 'Activa' : 'Cerrada' }}</span></div>
+    <dl class="details">
+      <div><dt>Cliente</dt><dd>{{ item.clienteId }}</dd></div>
+      <div><dt>Tipo</dt><dd>{{ item.tipo === 'AHORRO' ? 'Caja de ahorro' : 'Cuenta corriente' }}</dd></div>
+      <div><dt>Moneda</dt><dd>{{ item.moneda }}</dd></div>
+      <div><dt>Saldo actual</dt><dd>{{ item.saldo | currency:item.moneda:'symbol':'1.2-2':'es' }}</dd></div>
+    </dl>
+    @if (currentUser.isSupervisor() && item.estado === 'ACTIVA' && item.saldo === 0) {
+      <a class="btn danger" [routerLink]="['/cuentas', item.id, 'close']">Cerrar cuenta</a>
     }
-    <h2>Últimos movimientos</h2>
-    @if (detail.ultimosMovimientos.length === 0) { <p class="empty">Esta cuenta no tiene movimientos recientes.</p> }
+    @if (item.estado === 'ACTIVA' && item.saldo !== 0) { <p class="hint">La cuenta solo puede cerrarse cuando su saldo sea cero.</p> }
+  </section>
+  <section class="card" aria-labelledby="movements-heading">
+    <h2 id="movements-heading">Últimos movimientos</h2>
+    @if (item.ultimosMovimientos.length === 0) { <app-empty-state message="Esta cuenta todavía no tiene movimientos." /> }
     @else {
-      <div class="table-wrap"><table><thead><tr><th scope="col">Fecha</th><th scope="col">Tipo</th><th scope="col">Concepto</th><th scope="col">Importe</th><th scope="col">Saldo resultante</th></tr></thead><tbody>
-        @for (movement of detail.ultimosMovimientos; track movement.id) { <tr><td>{{ movement.fecha }}</td><td>{{ movement.tipo === 'CREDITO' ? 'Crédito' : movement.tipo === 'DEBITO' ? 'Débito' : movement.tipo }}</td><td>{{ movement.concepto }}</td><td>{{ movement.importe | number:'1.2-2' }}</td><td>{{ movement.saldoResultante | number:'1.2-2' }}</td></tr> }
-      </tbody></table></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th scope="col">Fecha</th><th scope="col">Tipo</th><th scope="col">Concepto</th><th scope="col">Importe</th><th scope="col">Saldo resultante</th></tr></thead>
+        <tbody>@for (movement of item.ultimosMovimientos; track movement.id) {
+          <tr><td>{{ movement.fecha }}</td><td>{{ movement.tipo }}</td><td>{{ movement.concepto }}</td><td>{{ movement.importe | currency:item.moneda:'symbol':'1.2-2':'es' }}</td><td>{{ movement.saldoResultante | currency:item.moneda:'symbol':'1.2-2':'es' }}</td></tr>
+        }</tbody>
+      </table></div>
     }
-  }
-</section>
+  </section>
+}

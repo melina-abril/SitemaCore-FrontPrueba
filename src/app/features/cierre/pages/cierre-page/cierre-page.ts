@@ -1,24 +1,30 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { PageHeader } from '../../../../shared/components/page-header';
+import { LoadingState } from '../../../../shared/components/loading-state';
+import { EmptyState } from '../../../../shared/components/empty-state';
+import { ErrorAlert } from '../../../../shared/components/error-alert';
+import { ClosingTotals } from '../../components/closing-totals';
 import { CierreService } from '../../data-access/cierre.service';
 import { CierreDto, EstadoCierre } from '../../models/cierre.models';
 
 @Component({
   selector: 'app-cierre-page',
   standalone: true,
+  imports: [DatePipe, DecimalPipe, PageHeader, LoadingState, EmptyState, ErrorAlert, ClosingTotals],
   templateUrl: './cierre-page.html',
   styleUrl: './cierre-page.scss'
 })
 export class CierrePage implements OnInit {
   private readonly service = inject(CierreService);
-  readonly cierre = signal<CierreDto | null>(null);
-  readonly historial = signal<CierreDto[]>([]);
+  readonly current = signal<CierreDto | null>(null);
+  readonly history = signal<CierreDto[]>([]);
   readonly loading = signal(true);
   readonly historyLoading = signal(true);
-  readonly working = signal(false);
+  readonly saving = signal(false);
   readonly error = signal('');
   readonly historyError = signal('');
   readonly actionError = signal('');
-  readonly notice = signal('');
 
   ngOnInit(): void {
     this.refresh();
@@ -30,72 +36,38 @@ export class CierrePage implements OnInit {
     this.error.set('');
     this.historyError.set('');
     this.service.obtenerCierreDiario().subscribe({
-      next: cierre => { this.cierre.set(cierre); this.loading.set(false); },
-      error: () => { this.error.set('No se pudo consultar el cierre diario.'); this.loading.set(false); }
+      next: data => { this.current.set(data); this.loading.set(false); },
+      error: () => { this.error.set('No se pudo cargar el cierre diario. Inténtelo nuevamente.'); this.loading.set(false); }
     });
     this.service.listarCierres().subscribe({
-      next: cierres => { this.historial.set(cierres); this.historyLoading.set(false); },
-      error: () => { this.historyError.set('No se pudo consultar el historial de cierres.'); this.historyLoading.set(false); }
+      next: data => { this.history.set(data); this.historyLoading.set(false); },
+      error: () => { this.historyError.set('No se pudo cargar el historial de cierres.'); this.historyLoading.set(false); }
     });
   }
 
-  execute(): void {
-    if (this.working() || this.cierre()?.estado !== 'PENDIENTE') return;
-    this.runAction('execute');
-  }
-
-  retry(): void {
-    if (this.working() || this.cierre()?.estado !== 'CON_ERROR') return;
-    this.runAction('retry');
-  }
-
-  private runAction(action: 'execute' | 'retry'): void {
-    this.working.set(true);
+  run(reprocess: boolean): void {
+    if (this.saving() || (reprocess ? this.current()?.estado !== 'CON_ERROR' : this.current()?.estado !== 'PENDIENTE')) {
+      return;
+    }
+    this.saving.set(true);
     this.actionError.set('');
-    this.notice.set('');
-    const request = action === 'execute' ? this.service.ejecutarCierre() : this.service.reprocesarCierre();
+    const request = reprocess ? this.service.reprocesarCierre() : this.service.ejecutarCierre();
     request.subscribe({
-      next: cierre => {
-        this.cierre.set(cierre);
-        this.working.set(false);
-        this.notice(cierre.estado === 'COMPLETADO' ? 'El cierre diario se completó correctamente.' : 'Se actualizó el estado del cierre.');
-        this.refresh();
-      },
-      error: (error: unknown) => {
-        this.working.set(false);
-        this.actionError.set(error instanceof Error ? error.message : 'No se pudo procesar el cierre. El día permanece abierto para reprocesarlo.');
+      next: data => { this.current.set(data); this.saving.set(false); this.refresh(); },
+      error: () => {
+        this.actionError.set('No se pudo completar el cierre. El día permanece abierto; revise el motivo e inténtelo nuevamente.');
+        this.saving.set(false);
         this.refresh();
       }
     });
   }
 
-  stateLabel(state: EstadoCierre): string {
-    switch (state) {
+  statusLabel(status: EstadoCierre): string {
+    switch (status) {
       case 'PENDIENTE': return 'Pendiente';
       case 'EN_CURSO': return 'En curso';
       case 'COMPLETADO': return 'Completado';
       case 'CON_ERROR': return 'Con error';
     }
-  }
-
-  stateClass(state: EstadoCierre): string {
-    switch (state) {
-      case 'COMPLETADO': return 'ok';
-      case 'CON_ERROR': return 'failed';
-      default: return 'warn';
-    }
-  }
-
-  formatAmount(value: number): string {
-    return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
-  }
-
-  balances(cierre: CierreDto): { currency: string; amount: number }[] {
-    return Object.entries(cierre.saldosCierre).map(([currency, amount]) => ({ currency, amount }));
-  }
-
-  formatDate(value: string): string {
-    const [year, month, day] = value.split('-');
-    return `${day}/${month}/${year}`;
   }
 }

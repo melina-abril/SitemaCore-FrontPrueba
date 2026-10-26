@@ -1,8 +1,12 @@
-.detail-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
-.detail-heading p, .balance span, .balance small, .note { color: var(--muted); }
-.balance { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
-.balance strong { color: var(--text); font-size: 2rem; }
-.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: .5rem; }
-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 550px; }
-th, td { padding: .8rem; border-bottom: 1px solid var(--border); }
+:host { display: grid; gap: 1.5rem; }
+.heading { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+h2 { margin: 0 0 1rem; font-size: 1.1rem; }
+.heading h2 { margin: 0; }
+.details { display: flex; flex-wrap: wrap; gap: 1.5rem 3rem; margin: 1.5rem 0; }
+dt { color: var(--muted); font-size: .8rem; font-weight: 600; }
+dd { margin: .25rem 0 0; }
+.hint { color: var(--muted); }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td { padding: .75rem; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-size: .8rem; }

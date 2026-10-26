@@ -1,12 +1,17 @@
+import { SessionUser } from '../../../core/session/current-user';
 import { ResumenDiaDto } from '../models/inicio.models';
 
-export function mockResumenDia(nombreUsuario: string, rol: string): ResumenDiaDto {
-  // Respuesta mock a reemplazar al conectar el backend.
+export function mockResumenDia(user: SessionUser): ResumenDiaDto {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+
   return {
-    nombreUsuario,
-    rol,
-    fechaOperativa: '2026-07-17',
-    cantidadMovimientos: 42,
+    nombreUsuario: user.name,
+    rol: user.role,
+    fechaOperativa: `${year}-${month}-${day}`,
+    cantidadMovimientos: 18,
     estadoCierre: 'PENDIENTE'
   };
 }

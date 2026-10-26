@@ -1,12 +1,11 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-page-header',
   standalone: true,
-  template: '<header class="page-header"><div><h1 class="page-title">{{ title() }}</h1>@if (description()) { <p class="muted">{{ description() }}</p> }</div><div class="page-actions"><ng-content /></div></header>',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  template: '<header class="page-header"><h1 class="page-title">{{ title() }}</h1><ng-content /></header>',
+  styles: ['.page-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; } .page-title { margin: 0; color: var(--text); }']
 })
 export class PageHeader {
   readonly title = input.required<string>();
-  readonly description = input('');
 }

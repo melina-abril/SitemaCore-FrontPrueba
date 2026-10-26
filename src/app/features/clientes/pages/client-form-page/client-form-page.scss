@@ -1,4 +1,1 @@
-section > a { color: var(--primary); }
-h1 { margin-bottom: .25rem; }
-p { color: var(--muted); }
-.alert { margin: 1rem 0; }
+:host { display: block; } .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1.25rem 0; } .field input { width: 100%; padding: .6rem; border: 1px solid var(--border); border-radius: .4rem; font: inherit; } .success { color: var(--success); } .links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.25rem; } .links a { color: var(--primary); } @media (max-width: 600px) { .fields { grid-template-columns: 1fr; } }

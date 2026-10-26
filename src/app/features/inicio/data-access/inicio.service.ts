@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CurrentUser } from '../../../core/session/current-user';
 import { apiUrl } from '../../../core/http/api-url';
 import { mockResponse } from '../../../core/http/mock-response';
+import { CurrentUser } from '../../../core/session/current-user';
 import { environment } from '../../../../environments/environment';
 import { mockResumenDia } from './inicio.mock';
 import { ResumenDiaDto } from '../models/inicio.models';
@@ -15,9 +15,10 @@ export class InicioService {
 
   obtenerResumenDia(): Observable<ResumenDiaDto> {
     if (environment.useMock) {
-      const user = this.currentUser.user();
-      return mockResponse(mockResumenDia(user.name, user.role));
+      // El mock se reemplaza al conectar el backend.
+      return mockResponse(mockResumenDia(this.currentUser.user()));
     }
+
     return this.http.get<ResumenDiaDto>(apiUrl('/api/inicio/resumen'));
   }
 }
