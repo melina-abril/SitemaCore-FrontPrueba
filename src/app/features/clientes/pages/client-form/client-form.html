@@ -1,0 +1,22 @@
+<section aria-labelledby="form-title">
+  <a routerLink="/clientes">← Volver a clientes</a>
+  <h1 id="form-title" class="page-title">{{ id === null ? 'Alta de cliente' : 'Datos del cliente' }}</h1>
+  @if (state(); as s) {
+    @switch (s.status) {
+      @case ('loading') { <app-loading-state /> }
+      @case ('error') { <app-error-alert [message]="s.message" /><button type="button" class="btn" (click)="load()">Reintentar</button> }
+      @case ('ready') { <p class="meta">Número de cliente: {{ s.data.customerNumber }} · Estado: {{ s.data.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}</p> }
+      @case ('empty') { <app-empty-state message="Completá los datos para dar de alta al cliente." /> }
+    }
+  }
+  @if (id === null || state().status === 'ready') {
+    <form class="card client-form" #clientForm="ngForm" (ngSubmit)="save()">
+      <div class="field"><label for="document">Documento *</label><input id="document" name="document" [(ngModel)]="form.document" required maxlength="30" autocomplete="off"></div>
+      <div class="field"><label for="name">Nombre completo *</label><input id="name" name="name" [(ngModel)]="form.name" required maxlength="120" autocomplete="name"></div>
+      <div class="field"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" [(ngModel)]="form.email" email autocomplete="email"></div>
+      <div class="field"><label for="phone">Teléfono</label><input id="phone" name="phone" type="tel" [(ngModel)]="form.phone" autocomplete="tel"></div>
+      @if (saveError()) { <app-error-alert [message]="saveError()" /> }
+      <div class="actions"><button class="btn primary" type="submit" [disabled]="clientForm.invalid || saving()">{{ saving() ? 'Guardando…' : 'Guardar cliente' }}</button><a class="btn" routerLink="/clientes">Cancelar</a></div>
+    </form>
+  }
+</section>

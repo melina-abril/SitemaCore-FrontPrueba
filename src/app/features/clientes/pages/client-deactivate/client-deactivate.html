@@ -1,0 +1,17 @@
+<section aria-labelledby="deactivate-title" class="card confirmation">
+  <h1 id="deactivate-title" class="page-title">Dar de baja un cliente</h1>
+  @if (state(); as s) {
+    @switch (s.status) {
+      @case ('loading') { <app-loading-state /> }
+      @case ('error') { <app-error-alert [message]="s.message" /><button type="button" class="btn" (click)="load()">Reintentar</button> }
+      @case ('empty') { <p>No se encontró el cliente.</p> }
+      @case ('ready') {
+        <p>¿Confirmás la baja de <strong>{{ s.data.name }}</strong> ({{ s.data.customerNumber }})?</p>
+        <p>La baja solo es posible si todas sus cuentas tienen saldo cero. Esta operación queda registrada para auditoría.</p>
+        @if (s.data.status === 'INACTIVE') { <p role="status">Este cliente ya está inactivo.</p> }
+        @if (error()) { <app-error-alert [message]="error()" /> }
+        <div class="actions"><button type="button" class="btn danger" [disabled]="submitting() || s.data.status === 'INACTIVE'" (click)="confirm()">{{ submitting() ? 'Procesando…' : 'Confirmar baja' }}</button><a class="btn" routerLink="/clientes">Cancelar</a></div>
+      }
+    }
+  }
+</section>

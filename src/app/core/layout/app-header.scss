@@ -1,9 +1,6 @@
 .header { background: var(--surface); border-bottom: 1px solid var(--border); }
-.header-inner { max-width: 90rem; margin: 0 auto; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.eyebrow { margin: 0; color: var(--muted); font-size: .8rem; }
-.app-title { display: block; font-size: 1.25rem; font-weight: 700; }
-.session { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
-.session-name { font-size: .875rem; }
-.skip-link { position: absolute; transform: translateY(-200%); padding: .5rem; background: var(--surface); z-index: 10; }
-.skip-link:focus { transform: translateY(0); }
-@media (max-width: 480px) { .header-inner { padding: 1rem; align-items: flex-start; } .session-name { display: none; } }
+.header-inner { max-width: 90rem; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; }
+.app-title { display: block; font-size: 1.25rem; color: var(--text); }
+.subtitle { display: block; font-size: .875rem; color: var(--muted); }
+.user { display: flex; align-items: center; gap: .75rem; font-size: .875rem; }
+@media (max-width: 700px) { .header-inner { padding: 1rem; } }

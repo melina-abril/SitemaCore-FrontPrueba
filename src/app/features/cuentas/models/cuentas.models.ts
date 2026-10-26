@@ -2,8 +2,7 @@ export type AccountType = 'CORRIENTE' | 'AHORRO';
 export type AccountCurrency = 'ARS' | 'USD';
 export type AccountStatus = 'ACTIVA' | 'CERRADA';
 
-// BigDecimal se serializa como número JSON y LocalDate como cadena YYYY-MM-DD.
-export interface OpenRequest {
+export interface OpenAccountRequest {
   clienteId: number;
   tipo: AccountType;
   moneda: AccountCurrency;

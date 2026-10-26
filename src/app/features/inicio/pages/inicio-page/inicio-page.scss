@@ -1,6 +1,4 @@
-:host { display: block; color: var(--text); }
-.welcome { margin: 0 0 1.5rem; color: var(--muted); }
-.welcome strong { color: var(--text); }
-app-day-summary-card { display: block; margin-bottom: 1.5rem; }
-app-error-alert { display: block; margin-bottom: 0.75rem; }
-.btn { margin-bottom: 1.5rem; }
+:host { display: flex; flex-direction: column; gap: 1.5rem; min-width: 0; }
+.page-heading h1 { margin: 0 0 .35rem; }
+.page-heading p { margin: 0; color: var(--muted); }
+.btn { align-self: flex-start; }

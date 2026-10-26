@@ -1,11 +1,11 @@
-<nav aria-label="Accesos directos" class="card">
+<nav aria-label="Accesos directos">
   <h2>Accesos directos</h2>
   <div class="links">
-    <a routerLink="/clientes" class="quick-link">Clientes <span aria-hidden="true">→</span></a>
-    <a routerLink="/cuentas" class="quick-link">Cuentas <span aria-hidden="true">→</span></a>
-    <a routerLink="/movimientos" class="quick-link">Movimientos <span aria-hidden="true">→</span></a>
-    @if (isSupervisor()) {
-      <a routerLink="/cierre" class="quick-link">Cierre diario <span aria-hidden="true">→</span></a>
+    <a class="card quick-link" routerLink="/clientes"><strong>Clientes</strong><span>Consultar el maestro de clientes</span></a>
+    <a class="card quick-link" routerLink="/cuentas"><strong>Cuentas</strong><span>Consultar las cuentas de clientes</span></a>
+    <a class="card quick-link" routerLink="/movimientos"><strong>Movimientos</strong><span>Consultar y registrar movimientos</span></a>
+    @if (currentUser.user().role === 'SUPERVISOR') {
+      <a class="card quick-link" routerLink="/cierre"><strong>Cierre diario</strong><span>Gestionar el cierre operativo</span></a>
     }
   </div>
 </nav>

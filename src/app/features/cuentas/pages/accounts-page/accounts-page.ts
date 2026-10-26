@@ -1,70 +1,69 @@
-import { Component, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { EmptyState } from '../../../../shared/components/empty-state';
+import { ErrorAlert } from '../../../../shared/components/error-alert';
+import { LoadingState } from '../../../../shared/components/loading-state';
+import type { LoadState } from '../../../../shared/models/load-state';
 import { CuentasService } from '../../data-access/cuentas.service';
-import { AccountSummary, AccountType, AccountCurrency } from '../../models/cuentas.models';
-import { AccountCard } from '../../components/account-card';
+import type { AccountCurrency, AccountSummary, AccountType } from '../../models/cuentas.models';
 
 @Component({
   selector: 'app-accounts-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, AccountCard, DecimalPipe],
+  imports: [DecimalPipe, FormsModule, RouterLink, EmptyState, ErrorAlert, LoadingState],
   templateUrl: './accounts-page.html',
   styleUrl: './accounts-page.scss'
 })
 export class AccountsPage {
   private readonly service = inject(CuentasService);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  readonly accounts = signal<AccountSummary[]>([]);
-  readonly loading = signal(false);
-  readonly saving = signal(false);
-  readonly error = signal('');
-  readonly formError = signal('');
-  clienteId = 1;
-  tipo: AccountType = 'AHORRO';
-  moneda: AccountCurrency = 'ARS';
+  public readonly state = signal<LoadState<AccountSummary[]>>({ status: 'loading' });
+  public readonly saving = signal(false);
+  public readonly formError = signal('');
+  public readonly notice = signal('');
+  public clienteId = 101;
+  public tipo: AccountType = 'AHORRO';
+  public moneda: AccountCurrency = 'ARS';
 
-  constructor() {
-    this.route.queryParamMap.subscribe(params => {
-      const value = Number(params.get('clienteId') ?? 1);
-      this.clienteId = Number.isSafeInteger(value) && value > 0 ? value : 1;
-      this.load();
-    });
+  public constructor() {
+    const requestedId = Number(this.route.snapshot.queryParamMap.get('clienteId'));
+    if (Number.isSafeInteger(requestedId) && requestedId > 0) this.clienteId = requestedId;
+    this.load();
   }
 
-  search(): void {
+  public load(): void {
+    this.notice.set('');
     if (!Number.isSafeInteger(this.clienteId) || this.clienteId <= 0) {
-      this.error.set('Ingresá un número de cliente válido.');
+      this.state.set({ status: 'error', message: 'Ingrese un número de cliente válido.' });
       return;
     }
-    void this.router.navigate(['/cuentas'], { queryParams: { clienteId: this.clienteId } });
-  }
-
-  load(): void {
-    this.loading.set(true);
-    this.error.set('');
+    this.state.set({ status: 'loading' });
     this.service.listarCuentas(this.clienteId).subscribe({
-      next: accounts => { this.accounts.set(accounts); this.loading.set(false); },
-      error: () => { this.error.set('No se pudieron cargar las cuentas. Intentá nuevamente.'); this.loading.set(false); }
+      next: (accounts) => this.state.set(accounts.length ? { status: 'ready', data: accounts } : { status: 'empty' }),
+      error: () => this.state.set({ status: 'error', message: 'No se pudieron cargar las cuentas. Intente nuevamente.' })
     });
   }
 
-  open(): void {
-    if (this.saving() || !Number.isSafeInteger(this.clienteId) || this.clienteId <= 0) {
-      this.formError.set('Ingresá un número de cliente válido.');
+  public open(): void {
+    this.formError.set('');
+    this.notice.set('');
+    if (!Number.isSafeInteger(this.clienteId) || this.clienteId <= 0) {
+      this.formError.set('Ingrese un número de cliente válido.');
       return;
     }
     this.saving.set(true);
-    this.formError.set('');
     this.service.abrirCuenta({ clienteId: this.clienteId, tipo: this.tipo, moneda: this.moneda }).subscribe({
-      next: account => {
+      next: () => {
         this.saving.set(false);
-        this.accounts.update(accounts => [...accounts, account]);
-        void this.router.navigate(['/cuentas', account.id]);
+        this.load();
+        this.notice.set('Cuenta abierta correctamente.');
       },
-      error: error => { this.saving.set(false); this.formError.set(error instanceof Error ? error.message : 'No se pudo abrir la cuenta. Verificá que el cliente esté activo.'); }
+      error: (error: Error) => {
+        this.saving.set(false);
+        this.formError.set(error.message || 'No se pudo abrir la cuenta. Verifique que el cliente esté activo.');
+      }
     });
   }
 }

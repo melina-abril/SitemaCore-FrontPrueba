@@ -3,7 +3,7 @@
   <div class="summary-grid">
     <div class="stat">
       <span class="stat-label">Fecha operativa</span>
-      <strong class="stat-value date">{{ summary().fechaOperativa.slice(8, 10) }}/{{ summary().fechaOperativa.slice(5, 7) }}/{{ summary().fechaOperativa.slice(0, 4) }}</strong>
+      <strong class="summary-value">{{ summary().fechaOperativa | date:'dd/MM/yyyy':'UTC' }}</strong>
     </div>
     <div class="stat">
       <span class="stat-label">Movimientos cargados</span>
@@ -11,12 +11,7 @@
     </div>
     <div class="stat">
       <span class="stat-label">Estado del cierre</span>
-      @switch (summary().estadoCierre) {
-        @case ('PENDIENTE') { <strong class="stat-value warn">Pendiente</strong> }
-        @case ('EN_CURSO') { <strong class="stat-value warn">En curso</strong> }
-        @case ('COMPLETADO') { <strong class="stat-value ok">Completado</strong> }
-        @default { <strong class="stat-value">{{ summary().estadoCierre }}</strong> }
-      }
+      <span class="chip big" [class.completed]="closureClass() === 'completed'" [class.in-progress]="closureClass() === 'in-progress'" [class.pending]="closureClass() === 'pending'">{{ closureLabel() }}</span>
     </div>
   </div>
 </section>

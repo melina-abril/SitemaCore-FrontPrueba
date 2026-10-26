@@ -1,9 +1,13 @@
-:host { display: grid; gap: 1rem; color: var(--text); }
-h2 { margin-top: 0; font-size: 1.15rem; }
-.overview { display: flex; flex-wrap: wrap; gap: 2rem; margin: 1.25rem 0; }
-.stat-value { display: block; }
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; text-align: left; }
-th, td { padding: .75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+:host { display: grid; gap: 1.25rem; }
+.page-heading, .section-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.page-heading p { color: var(--muted); margin: .25rem 0 0; }
+.page-title { margin: 0; font-size: 1.5rem; }
+h2 { margin: 0 0 1rem; font-size: 1.15rem; }
+.section-heading h2 { margin: 0; }
+.details { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 1.25rem; }
+.details .stat { min-width: 140px; }
+.chip { display: inline-block; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; min-width: 530px; }
+th, td { padding: .75rem; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-size: .8rem; }
-button { justify-self: start; }

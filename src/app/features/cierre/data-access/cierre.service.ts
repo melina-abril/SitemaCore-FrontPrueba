@@ -1,59 +1,50 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { apiUrl } from '../../../core/http/api-url';
 import { mockResponse } from '../../../core/http/mock-response';
 import { environment } from '../../../../environments/environment';
-import { CierreDto } from '../models/cierre.models';
-import { MOCK_CIERRE, MOCK_HISTORIAL } from './cierre.mock';
+import type { DailyClosing } from '../models/cierre.models';
+import { MOCK_CLOSING_HISTORY, MOCK_COMPLETED_CLOSING, MOCK_DAILY_CLOSING } from './cierre.mock';
 
 @Injectable({ providedIn: 'root' })
 export class CierreService {
   private readonly http = inject(HttpClient);
-  private mockCurrent: CierreDto = { ...MOCK_CIERRE };
-  private mockHistory: CierreDto[] = MOCK_HISTORIAL.map(item => ({ ...item }));
+  private mockClosing: DailyClosing = { ...MOCK_DAILY_CLOSING, saldosCierre: {} };
 
-  obtenerCierreDiario(): Observable<CierreDto> {
-    // El mock se reemplaza al conectar el backend.
-    return environment.useMock
-      ? mockResponse({ ...this.mockCurrent, saldosCierre: { ...this.mockCurrent.saldosCierre } })
-      : this.http.get<CierreDto>(apiUrl('/api/cierre-diario'));
-  }
-
-  listarCierres(): Observable<CierreDto[]> {
-    return environment.useMock
-      ? mockResponse(this.mockHistory.map(item => ({ ...item, saldosCierre: { ...item.saldosCierre } })))
-      : this.http.get<CierreDto[]>(apiUrl('/api/cierre-diario/historial'));
-  }
-
-  ejecutarCierre(): Observable<CierreDto> {
+  public getDailyClosing(): Observable<DailyClosing> {
     if (environment.useMock) {
-      return this.completeMock();
+      return mockResponse(this.copy(this.mockClosing));
     }
-    return this.http.post<CierreDto>(apiUrl('/api/cierre-diario/ejecutar'), {});
+    return this.http.get<DailyClosing>(apiUrl('/api/cierre-diario'));
   }
 
-  reprocesarCierre(): Observable<CierreDto> {
+  public listClosings(): Observable<DailyClosing[]> {
     if (environment.useMock) {
-      return this.completeMock();
+      return mockResponse(MOCK_CLOSING_HISTORY.map((closing) => this.copy(closing)));
     }
-    return this.http.post<CierreDto>(apiUrl('/api/cierre-diario/reprocesar'), {});
+    return this.http.get<DailyClosing[]>(apiUrl('/api/cierre-diario/historial'));
   }
 
-  private completeMock(): Observable<CierreDto> {
-    if (this.mockCurrent.estado !== 'PENDIENTE' && this.mockCurrent.estado !== 'CON_ERROR') {
-      return mockResponse({ ...this.mockCurrent });
+  public executeClosing(): Observable<DailyClosing> {
+    if (environment.useMock) {
+      // Respuesta mock temporal: reemplazar al conectar el backend.
+      this.mockClosing = this.copy(MOCK_COMPLETED_CLOSING);
+      return mockResponse(this.copy(this.mockClosing));
     }
-    this.mockCurrent = {
-      ...this.mockCurrent,
-      estado: 'COMPLETADO',
-      totalDebitos: 9200.50,
-      totalCreditos: 12750,
-      saldosCierre: { 'CTA-1001': 27149.75, 'CTA-1002': 8500 },
-      motivoError: null,
-      cerradoEn: '2026-07-15T20:12:00Z'
-    };
-    this.mockHistory = [{ ...this.mockCurrent }, ...this.mockHistory];
-    return mockResponse({ ...this.mockCurrent, saldosCierre: { ...this.mockCurrent.saldosCierre } });
+    return this.http.post<DailyClosing>(apiUrl('/api/cierre-diario/ejecutar'), {});
+  }
+
+  public retryClosing(): Observable<DailyClosing> {
+    if (environment.useMock) {
+      // Respuesta mock temporal: reemplazar al conectar el backend.
+      this.mockClosing = this.copy(MOCK_COMPLETED_CLOSING);
+      return mockResponse(this.copy(this.mockClosing));
+    }
+    return this.http.post<DailyClosing>(apiUrl('/api/cierre-diario/reprocesar'), {});
+  }
+
+  private copy(closing: DailyClosing): DailyClosing {
+    return { ...closing, saldosCierre: { ...closing.saldosCierre } };
   }
 }

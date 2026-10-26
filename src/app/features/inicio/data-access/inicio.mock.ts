@@ -1,17 +1,18 @@
-import { SessionUser } from '../../../core/session/current-user';
-import { ResumenDiaDto } from '../models/inicio.models';
+import type { ResumenDia } from '../models/inicio.models';
 
-export function mockResumenDia(user: SessionUser): ResumenDiaDto {
+export function createInicioMock(nombreUsuario: string, rol: 'OPERADOR' | 'SUPERVISOR'): ResumenDia {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
+  const fechaOperativa = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, '0'),
+    String(today.getDate()).padStart(2, '0')
+  ].join('-');
 
   return {
-    nombreUsuario: user.name,
-    rol: user.role,
-    fechaOperativa: `${year}-${month}-${day}`,
-    cantidadMovimientos: 18,
+    nombreUsuario,
+    rol,
+    fechaOperativa,
+    cantidadMovimientos: 47,
     estadoCierre: 'PENDIENTE'
   };
 }

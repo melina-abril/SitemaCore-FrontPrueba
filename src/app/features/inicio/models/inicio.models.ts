@@ -1,4 +1,4 @@
-export interface ResumenDiaDto {
+export interface ResumenDia {
   nombreUsuario: string;
   rol: string;
   fechaOperativa: string;

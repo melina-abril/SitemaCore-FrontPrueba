@@ -1,9 +1,9 @@
-<nav class="nav card" aria-label="Navegación principal">
-  <a routerLink="/inicio" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Inicio</a>
-  <a routerLink="/clientes" routerLinkActive="active">Clientes</a>
-  <a routerLink="/cuentas" routerLinkActive="active">Cuentas</a>
-  <a routerLink="/movimientos" routerLinkActive="active">Movimientos</a>
-  @if (isSupervisor()) {
-    <a routerLink="/cierre" routerLinkActive="active">Cierre diario</a>
+<nav class="nav" aria-label="Navegación principal">
+  <a routerLink="/inicio" routerLinkActive="active" ariaCurrentWhenActive="page">Inicio</a>
+  <a routerLink="/clientes" routerLinkActive="active" ariaCurrentWhenActive="page">Clientes</a>
+  <a routerLink="/cuentas" routerLinkActive="active" ariaCurrentWhenActive="page">Cuentas</a>
+  <a routerLink="/movimientos" routerLinkActive="active" ariaCurrentWhenActive="page">Movimientos</a>
+  @if (session().isSupervisor) {
+    <a routerLink="/cierre" routerLinkActive="active" ariaCurrentWhenActive="page">Cierre diario</a>
   }
 </nav>

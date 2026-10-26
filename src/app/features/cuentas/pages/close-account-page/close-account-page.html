@@ -1,15 +1,26 @@
-<section>
-  <h1 class="page-title">Cerrar cuenta</h1>
-  @if (loading()) { <p role="status">Cargando cuenta…</p> }
-  @else if (account(); as detail) {
-    <div class="card">
-      <h2>Cuenta {{ detail.numero }}</h2>
-      <p>Cliente {{ detail.clienteId }} · Saldo: {{ detail.saldo | number:'1.2-2' }} {{ detail.moneda }}</p>
-      @if (detail.estado !== 'ACTIVA') { <p role="status">Esta cuenta ya está cerrada.</p> }
-      @else if (detail.saldo !== 0) { <p role="status">No se puede cerrar una cuenta con saldo distinto de cero.</p> }
-      @else { <p>Confirmá el cierre de la cuenta. Esta operación requiere rol de supervisor.</p><button class="btn danger" type="button" [disabled]="saving()" (click)="close()">{{ saving() ? 'Cerrando…' : 'Confirmar cierre' }}</button> }
-      <a class="btn" [routerLink]="['/cuentas', detail.id]">Volver al detalle</a>
-    </div>
+<section aria-labelledby="close-title">
+  <a routerLink="/cuentas">← Volver a cuentas</a>
+  <h1 id="close-title" class="page-title">Cierre de cuenta</h1>
+  @if (state(); as s) {
+    @switch (s.status) {
+      @case ('loading') { <app-loading-state /> }
+      @case ('error') { <app-error-alert [message]="s.message" /> }
+      @case ('empty') { <p class="empty">No se encontró la cuenta.</p> }
+      @case ('ready') {
+        <div class="card">
+          <h2>{{ s.data.numero }}</h2>
+          <p>Cliente {{ s.data.clienteId }} · Saldo: {{ s.data.saldo | number:'1.2-2' }} {{ s.data.moneda }}</p>
+          @if (completed()) {
+            <p class="success-message" role="status">La cuenta se cerró correctamente.</p>
+          } @else if (s.data.estado !== 'ACTIVA' || s.data.saldo !== 0) {
+            <p role="status">Solo se puede cerrar una cuenta activa con saldo cero.</p>
+          } @else if (currentUser.user().role === 'SUPERVISOR') {
+            <p>Esta operación cierra la cuenta y no modifica su saldo.</p>
+            <button class="btn danger" type="button" [disabled]="closing()" (click)="close(s.data.id)">{{ closing() ? 'Cerrando…' : 'Confirmar cierre' }}</button>
+          }
+          @if (error()) { <app-error-alert [message]="error()" /> }
+        </div>
+      }
+    }
   }
-  @if (error()) { <div class="alert" role="alert">{{ error() }} <button class="btn small" type="button" (click)="load()">Reintentar</button></div> }
 </section>

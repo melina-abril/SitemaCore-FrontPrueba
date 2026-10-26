@@ -1,30 +1,39 @@
-<section>
-  <header class="page-heading">
-    <div><h1 class="page-title">Cuentas del cliente</h1><p>Consultá saldos y movimientos o abrí una cuenta para un cliente activo.</p></div>
-    <a class="btn" routerLink="/clientes">Ir a clientes</a>
-  </header>
-
-  <form class="card search-form" (ngSubmit)="search()">
-    <div class="field grow"><label for="client-id">Número de cliente</label><input id="client-id" name="clienteId" type="number" min="1" step="1" required [(ngModel)]="clienteId"></div>
+<section aria-labelledby="accounts-title">
+  <h1 id="accounts-title" class="page-title">Cuentas del cliente</h1>
+  <p>Consulte las cuentas de un cliente o abra una nueva. El saldo se calcula a partir de los movimientos.</p>
+  <form class="card search" (ngSubmit)="load()">
+    <div class="field grow"><label for="client-search">Número de cliente</label><input id="client-search" type="number" name="clienteId" min="1" required [(ngModel)]="clienteId"></div>
     <button class="btn primary" type="submit">Buscar cuentas</button>
   </form>
-
-  @if (loading()) { <p role="status">Cargando cuentas…</p> }
-  @else if (error()) { <div class="alert" role="alert">{{ error() }} <button class="btn small" type="button" (click)="load()">Reintentar</button></div> }
-  @else {
-    <h2>Cuentas del cliente {{ clienteId }}</h2>
-    @if (accounts().length === 0) { <p class="empty">Este cliente todavía no tiene cuentas.</p> }
-    @else { <div class="account-list">@for (account of accounts(); track account.id) { <app-account-card [account]="account" /> }</div> }
+  @if (notice()) { <p role="status" class="success-message">{{ notice() }}</p> }
+  @if (state(); as s) {
+    @switch (s.status) {
+      @case ('loading') { <app-loading-state /> }
+      @case ('error') { <app-error-alert [message]="s.message" /> }
+      @case ('empty') { <app-empty-state message="Este cliente no tiene cuentas registradas." /> }
+      @case ('ready') {
+        <div class="account-grid">
+          @for (account of s.data; track account.id) {
+            <article class="card">
+              <h2>{{ account.numero }}</h2>
+              <p>{{ account.tipo === 'AHORRO' ? 'Caja de ahorro' : 'Cuenta corriente' }} · {{ account.moneda }}</p>
+              <p>Saldo actual: <strong>{{ account.saldo | number:'1.2-2' }} {{ account.moneda }}</strong></p>
+              <span class="chip">{{ account.estado === 'ACTIVA' ? 'Activa' : 'Cerrada' }}</span>
+              <p><a [routerLink]="['/cuentas', account.id]">Ver detalle y últimos movimientos</a></p>
+            </article>
+          }
+        </div>
+      }
+    }
   }
-
-  <section class="card open-section" aria-labelledby="open-title">
+  <section class="card" aria-labelledby="open-title">
     <h2 id="open-title">Abrir cuenta</h2>
-    <p>El cliente debe estar activo. El saldo inicial será cero y cambiará únicamente con sus movimientos.</p>
-    <form (ngSubmit)="open()">
+    <p>Solo se pueden abrir cuentas para clientes activos.</p>
+    <form class="open-form" (ngSubmit)="open()">
       <div class="field"><label for="account-type">Tipo de cuenta</label><select id="account-type" name="tipo" [(ngModel)]="tipo"><option value="AHORRO">Caja de ahorro</option><option value="CORRIENTE">Cuenta corriente</option></select></div>
-      <div class="field"><label for="account-currency">Moneda</label><select id="account-currency" name="moneda" [(ngModel)]="moneda"><option value="ARS">Pesos (ARS)</option><option value="USD">Dólares (USD)</option></select></div>
+      <div class="field"><label for="account-currency">Moneda</label><select id="account-currency" name="moneda" [(ngModel)]="moneda"><option value="ARS">ARS</option><option value="USD">USD</option></select></div>
       <button class="btn primary" type="submit" [disabled]="saving()">{{ saving() ? 'Abriendo…' : 'Abrir cuenta' }}</button>
     </form>
-    @if (formError()) { <div class="alert" role="alert">{{ formError() }}</div> }
+    @if (formError()) { <app-error-alert [message]="formError()" /> }
   </section>
 </section>
