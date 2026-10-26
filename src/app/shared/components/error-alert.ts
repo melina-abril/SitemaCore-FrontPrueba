@@ -6,5 +6,5 @@ import { Component, input } from '@angular/core';
   template: '<div class="alert" role="alert">{{ message() }}</div>'
 })
 export class ErrorAlert {
-  readonly message = input.required<string>();
+  public readonly message = input.required<string>();
 }

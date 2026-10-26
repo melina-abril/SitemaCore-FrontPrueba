@@ -1,0 +1,22 @@
+<section aria-labelledby="adjust-title" class="card">
+  <h1 id="adjust-title" class="page-title">Ajustar movimiento cerrado</h1>
+  <p>El movimiento original no se modifica. El ajuste se registra en el día abierto.</p>
+  @if (state(); as s) {
+    @switch (s.status) {
+      @case ('loading') { <app-loading-state /> }
+      @case ('error') { <app-error-alert [message]="s.message" /> }
+      @case ('empty') { <p>No se encontró el movimiento.</p> }
+      @case ('ready') {
+        <p><strong>Movimiento original:</strong> {{ s.data.id }} · Cuenta {{ s.data.cuentaId }} · {{ s.data.fechaOperativa }} · {{ s.data.concepto }}</p>
+        <form (ngSubmit)="submit()">
+          <div class="field"><label for="direction">Dirección del ajuste</label><select id="direction" name="direction" required [(ngModel)]="form.direccion"><option value="CREDITO">Crédito</option><option value="DEBITO">Débito</option></select></div>
+          <div class="field"><label for="adjust-amount">Importe</label><input id="adjust-amount" name="amount" type="number" min="0.01" step="0.01" required [(ngModel)]="form.importe"></div>
+          <div class="field"><label for="adjust-concept">Motivo del ajuste</label><input id="adjust-concept" name="concept" type="text" maxlength="160" required [(ngModel)]="form.concepto"></div>
+          <button type="submit" class="btn primary" [disabled]="saving()">{{ saving() ? 'Registrando…' : 'Registrar ajuste' }}</button>
+        </form>
+      }
+    }
+  }
+  @if (errorMessage()) { <app-error-alert [message]="errorMessage()" /> }
+  <a routerLink="/movimientos">Volver a movimientos</a>
+</section>

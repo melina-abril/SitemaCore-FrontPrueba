@@ -1,7 +1,10 @@
-<app-header />
-<div class="app-layout">
-  <app-side-nav />
-  <main class="app-content" id="contenido" tabindex="-1">
-    <router-outlet />
-  </main>
+<a class="skip-link" href="#main-content">Saltar al contenido</a>
+<div class="app-shell">
+  <app-header />
+  <div class="app-body">
+    <app-side-nav />
+    <main id="main-content" class="app-content" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
 </div>

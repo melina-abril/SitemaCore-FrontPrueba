@@ -1,5 +1,1 @@
-.card { max-width: 640px; }
-.card h2 { margin-top: 0; }
-.card p { color: var(--muted); }
-.card .btn { display: inline-block; margin: .5rem .5rem .5rem 0; }
-.alert { margin-top: 1rem; }
+:host { display: block; } .card { max-width: 36rem; margin-top: 1rem; } .success-message { color: var(--success); font-weight: 600; }

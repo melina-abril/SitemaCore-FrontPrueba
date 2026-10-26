@@ -1,5 +1,6 @@
-import { Component, input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CurrentUser } from '../../../core/session/current-user';
 
 @Component({
   selector: 'app-quick-links',
@@ -9,5 +10,5 @@ import { RouterLink } from '@angular/router';
   styleUrl: './quick-links.scss'
 })
 export class QuickLinks {
-  readonly isSupervisor = input.required<boolean>();
+  public readonly currentUser = inject(CurrentUser);
 }

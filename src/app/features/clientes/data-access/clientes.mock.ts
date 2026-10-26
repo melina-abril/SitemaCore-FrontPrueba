@@ -1,72 +1,48 @@
-import { ClientRequest, ClientResponse } from '../models/client.models';
+import type { ClientRequest, ClientResponse } from '../models/clientes.models';
 
-// Datos mock; se reemplazan al conectar el backend.
-let clients: ClientResponse[] = [
-  { id: 1, customerNumber: 'CLI-0001', document: '30123456', name: 'Ana Rodríguez', email: 'ana.rodriguez@example.com', phone: '11 4321 1001', status: 'ACTIVE' },
-  { id: 2, customerNumber: 'CLI-0002', document: '28987654', name: 'Carlos Pérez', email: 'carlos.perez@example.com', phone: '11 4321 1002', status: 'ACTIVE' },
-  { id: 3, customerNumber: 'CLI-0003', document: '33444555', name: 'Lucía Gómez', email: null, phone: '11 4321 1003', status: 'INACTIVE' }
+// Datos mock temporales: reemplazar al conectar el backend.
+const clients: ClientResponse[] = [
+  { id: 1, customerNumber: 'CLI-000001', document: '30123456', name: 'María Fernández', email: 'maria.fernandez@example.com', phone: '11 4321 5678', status: 'ACTIVE' },
+  { id: 2, customerNumber: 'CLI-000002', document: '28765432', name: 'Carlos Medina', email: 'carlos.medina@example.com', phone: '11 4567 8901', status: 'ACTIVE' },
+  { id: 3, customerNumber: 'CLI-000003', document: '33456789', name: 'Ana Torres', email: 'ana.torres@example.com', phone: '11 4789 1234', status: 'INACTIVE' }
 ];
 
-export function searchMockClients(search: string): ClientResponse[] {
-  const term = search.trim().toLocaleLowerCase();
-  return clients.filter(client =>
-    client.name.toLocaleLowerCase().includes(term) ||
-    client.document.toLocaleLowerCase().includes(term) ||
-    client.customerNumber.toLocaleLowerCase().includes(term)
-  ).map(client => ({ ...client }));
+export function mockSearchClients(search?: string): ClientResponse[] {
+  const term = search?.trim().toLocaleLowerCase('es') ?? '';
+  return clients.filter(client => [client.name, client.document, client.customerNumber].some(value => value.toLocaleLowerCase('es').includes(term))).map(client => ({ ...client }));
 }
 
-export function getMockClient(id: number): ClientResponse {
+export function mockGetClient(id: number): ClientResponse {
   const client = clients.find(item => item.id === id);
   if (!client) throw new Error('No se encontró el cliente.');
   return { ...client };
 }
 
-function validate(request: ClientRequest, currentId?: number): void {
-  if (!request.document.trim() || !request.name.trim()) {
-    throw new Error('El documento y el nombre son obligatorios.');
-  }
-  if (clients.some(client => client.document === request.document.trim() && client.id !== currentId)) {
-    throw new Error('Ya existe un cliente con ese documento.');
-  }
+function validate(request: ClientRequest, exceptId?: number): void {
+  if (!request.document.trim() || !request.name.trim()) throw new Error('El documento y el nombre son obligatorios.');
+  if (clients.some(client => client.document === request.document.trim() && client.id !== exceptId)) throw new Error('Ya existe un cliente con ese documento.');
 }
 
-export function createMockClient(request: ClientRequest): ClientResponse {
+export function mockCreateClient(request: ClientRequest): ClientResponse {
   validate(request);
   const id = Math.max(0, ...clients.map(client => client.id)) + 1;
-  const client: ClientResponse = {
-    id,
-    customerNumber: `CLI-${String(id).padStart(4, '0')}`,
-    document: request.document.trim(),
-    name: request.name.trim(),
-    email: request.email?.trim() || null,
-    phone: request.phone?.trim() || null,
-    status: 'ACTIVE'
-  };
-  clients = [...clients, client];
+  const client: ClientResponse = { ...request, document: request.document.trim(), name: request.name.trim(), id, customerNumber: `CLI-${String(id).padStart(6, '0')}`, status: 'ACTIVE' };
+  clients.push(client);
   return { ...client };
 }
 
-export function updateMockClient(id: number, request: ClientRequest): ClientResponse {
-  getMockClient(id);
+export function mockUpdateClient(id: number, request: ClientRequest): ClientResponse {
+  const client = clients.find(item => item.id === id);
+  if (!client) throw new Error('No se encontró el cliente.');
   validate(request, id);
-  const updated: ClientResponse = {
-    ...getMockClient(id),
-    document: request.document.trim(),
-    name: request.name.trim(),
-    email: request.email?.trim() || null,
-    phone: request.phone?.trim() || null
-  };
-  clients = clients.map(client => client.id === id ? updated : client);
-  return { ...updated };
+  Object.assign(client, request, { document: request.document.trim(), name: request.name.trim() });
+  return { ...client };
 }
 
-export function deactivateMockClient(id: number): ClientResponse {
-  const client = getMockClient(id);
-  // En este escenario de ejemplo, el cliente 1 tiene una cuenta con saldo pendiente.
+export function mockDeactivateClient(id: number): ClientResponse {
+  const client = clients.find(item => item.id === id);
+  if (!client) throw new Error('No se encontró el cliente.');
   if (id === 1) throw new Error('No se puede dar de baja: el cliente tiene una cuenta con saldo distinto de cero.');
-  if (client.status === 'INACTIVE') throw new Error('El cliente ya está inactivo.');
-  const updated: ClientResponse = { ...client, status: 'INACTIVE' };
-  clients = clients.map(item => item.id === id ? updated : item);
-  return { ...updated };
+  client.status = 'INACTIVE';
+  return { ...client };
 }

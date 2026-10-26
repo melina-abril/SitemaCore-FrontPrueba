@@ -1,15 +1,23 @@
-<app-page-header title="Inicio" />
-<p class="welcome">Bienvenido/a, <strong>{{ currentUser.user().name }}</strong> · {{ currentUser.user().role === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</p>
-@if (state().status === 'loading') {
-  <app-loading-state />
-} @else if (state().status === 'error') {
-  <app-error-alert message="No se pudo cargar el resumen del día" />
-  <button type="button" class="btn" (click)="loadSummary()">Reintentar</button>
-} @else if (state().status === 'ready') {
-  @if (state(); as currentState) {
-    @if (currentState.status === 'ready') {
-      <app-day-summary-card [summary]="currentState.data" />
-    }
+<header class="page-heading">
+  <h1 class="page-title">Inicio</h1>
+  <p>Bienvenido/a, <strong>{{ currentUser.user().name }}</strong> · {{ currentUser.user().role === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</p>
+</header>
+
+@let s = state();
+@switch (s.status) {
+  @case ('loading') {
+    <app-loading-state />
+  }
+  @case ('ready') {
+    <app-day-summary-card [summary]="s.data" />
+  }
+  @case ('error') {
+    <app-error-alert [message]="s.message" />
+    <button class="btn" type="button" (click)="loadSummary()">Reintentar</button>
+  }
+  @case ('empty') {
+    <p class="empty">No hay un resumen disponible para el día.</p>
   }
 }
-<app-quick-links [isSupervisor]="currentUser.isSupervisor()" />
+
+<app-quick-links />

@@ -1,52 +1,41 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CurrentUser } from '../../../../core/session/current-user';
 import { EmptyState } from '../../../../shared/components/empty-state';
 import { ErrorAlert } from '../../../../shared/components/error-alert';
 import { LoadingState } from '../../../../shared/components/loading-state';
-import { PageHeader } from '../../../../shared/components/page-header';
+import type { LoadState } from '../../../../shared/models/load-state';
 import { CuentasService } from '../../data-access/cuentas.service';
-import { AccountDetail } from '../../models/account.models';
+import type { AccountDetail } from '../../models/cuentas.models';
 
 @Component({
   selector: 'app-account-detail-page',
   standalone: true,
-  imports: [CurrencyPipe, RouterLink, EmptyState, ErrorAlert, LoadingState, PageHeader],
+  imports: [DatePipe, DecimalPipe, RouterLink, EmptyState, ErrorAlert, LoadingState],
   templateUrl: './account-detail-page.html',
   styleUrl: './account-detail-page.scss'
 })
 export class AccountDetailPage {
-  private readonly route = inject(ActivatedRoute);
   private readonly service = inject(CuentasService);
-  private readonly destroyRef = inject(DestroyRef);
-  readonly currentUser = inject(CurrentUser);
-  readonly account = signal<AccountDetail | null>(null);
-  readonly loading = signal(true);
-  readonly error = signal('');
+  private readonly route = inject(ActivatedRoute);
+  public readonly currentUser = inject(CurrentUser);
+  public readonly state = signal<LoadState<AccountDetail>>({ status: 'loading' });
 
-  constructor() {
-    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
-      const id = Number(params.get('id'));
-      this.account.set(null);
-      this.error.set('');
-      if (!Number.isSafeInteger(id) || id <= 0) {
-        this.loading.set(false);
-        this.error.set('El número de cuenta no es válido.');
-        return;
-      }
-      this.loading.set(true);
-      this.service.obtenerCuenta(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: account => {
-          this.account.set(account);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.error.set('No se pudo cargar el detalle de la cuenta.');
-        }
-      });
+  public constructor() {
+    this.load();
+  }
+
+  public load(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      this.state.set({ status: 'error', message: 'El número de cuenta no es válido.' });
+      return;
+    }
+    this.state.set({ status: 'loading' });
+    this.service.obtenerCuenta(id).subscribe({
+      next: (account) => this.state.set({ status: 'ready', data: account }),
+      error: () => this.state.set({ status: 'error', message: 'No se pudo obtener el detalle de la cuenta.' })
     });
   }
 }

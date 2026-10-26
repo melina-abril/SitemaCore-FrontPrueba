@@ -1,11 +1,11 @@
-export type EstadoCierre = 'PENDIENTE' | 'EN_CURSO' | 'COMPLETADO' | 'CON_ERROR';
+export type ClosingStatus = 'PENDIENTE' | 'EN_CURSO' | 'COMPLETADO' | 'CON_ERROR';
 
-export interface CierreDto {
+export interface DailyClosing {
   fechaOperativa: string;
-  estado: EstadoCierre;
+  estado: ClosingStatus;
   cantidadMovimientos: number;
-  totalDebitos: number;
-  totalCreditos: number;
+  totalDebitos: number | null;
+  totalCreditos: number | null;
   saldosCierre: Record<string, number>;
   motivoError: string | null;
   cerradoEn: string | null;

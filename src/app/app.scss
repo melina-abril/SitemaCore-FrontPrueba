@@ -1,4 +1,7 @@
 :host { display: block; min-height: 100vh; }
-.app-layout { display: grid; grid-template-columns: minmax(12rem, 15rem) minmax(0, 1fr); max-width: 90rem; margin: 0 auto; gap: 1.5rem; padding: 1.5rem; align-items: start; }
-.app-content { min-width: 0; }
-@media (max-width: 720px) { .app-layout { grid-template-columns: 1fr; padding: 1rem; gap: 1rem; } }
+.app-shell { min-height: 100vh; }
+.app-body { display: grid; grid-template-columns: minmax(12rem, 14rem) minmax(0, 1fr); max-width: 90rem; margin: 0 auto; }
+.app-content { min-width: 0; padding: 2rem; }
+.skip-link { position: absolute; z-index: 10; left: 1rem; top: -5rem; padding: .5rem 1rem; background: var(--surface); color: var(--primary); border: 1px solid var(--border); border-radius: .5rem; }
+.skip-link:focus { top: .5rem; }
+@media (max-width: 700px) { .app-body { display: block; } .app-content { padding: 1rem; } }

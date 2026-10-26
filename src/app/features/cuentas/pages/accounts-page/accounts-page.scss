@@ -1,12 +1,1 @@
-.page-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
-.page-heading p, .open-section p { color: var(--muted); }
-.search-form, .open-section form { display: flex; align-items: end; gap: 1rem; flex-wrap: wrap; }
-.search-form { margin: 1.5rem 0; }
-.account-list { display: grid; gap: 1rem; }
-.open-section { margin-top: 2rem; }
-.field { display: flex; flex-direction: column; gap: .35rem; }
-.field.grow { flex: 1; min-width: 180px; }
-label { color: var(--muted); font-size: .8rem; font-weight: 600; }
-input, select { font: inherit; min-height: 2.5rem; padding: .4rem .65rem; border: 1px solid var(--border); border-radius: .4rem; background: var(--surface); color: var(--text); }
-.alert { margin-top: 1rem; }
-@media (max-width: 600px) { .search-form, .open-section form { align-items: stretch; flex-direction: column; } .field, .search-form button, .open-section button { width: 100%; } }
+:host { display: block; } .search, .open-form { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem; margin-bottom: 1.5rem; } .field { min-width: 11rem; } .account-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: 1rem; margin: 1rem 0 2rem; } .account-grid h2 { overflow-wrap: anywhere; } .success-message { color: var(--success); font-weight: 600; } .card { margin-bottom: 1rem; }

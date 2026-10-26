@@ -1,6 +1,6 @@
-.nav { display: flex; flex-direction: column; gap: .25rem; padding: .6rem; }
-.nav a { display: block; border-radius: .5rem; padding: .7rem .9rem; font-weight: 500; color: var(--text); text-decoration: none; }
-.nav a:hover { background: var(--bg); }
+.nav { display: flex; flex-direction: column; gap: .35rem; padding: 1.5rem .75rem; }
+.nav a { display: block; padding: .65rem .85rem; border-radius: .5rem; color: var(--text); text-decoration: none; font-weight: 500; }
+.nav a:hover { background: var(--bg); color: var(--primary); }
 .nav a.active { background: var(--primary); color: var(--surface); }
 .nav a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-@media (max-width: 720px) { .nav { flex-direction: row; flex-wrap: wrap; } .nav a { padding: .55rem .7rem; } }
+@media (max-width: 700px) { .nav { flex-direction: row; flex-wrap: wrap; padding: .75rem 1rem; border-bottom: 1px solid var(--border); } .nav a { padding: .5rem .65rem; } }

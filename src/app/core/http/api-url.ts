@@ -2,15 +2,9 @@ import { environment } from '../../../environments/environment';
 
 export function apiUrl(path: string): string {
   const base = environment.apiBaseUrl.replace(/\/+$/, '');
-  const servicePath = `/${path.replace(/^\/+/, '')}`;
-
-  if (!base) {
-    return servicePath;
+  const absolutePath = path.startsWith('/') ? path : `/${path}`;
+  if (base.endsWith('/api') && (absolutePath === '/api' || absolutePath.startsWith('/api/'))) {
+    return `${base}${absolutePath.slice(4)}`;
   }
-
-  if (base.endsWith('/api') && (servicePath === '/api' || servicePath.startsWith('/api/'))) {
-    return `${base}${servicePath.slice('/api'.length)}`;
-  }
-
-  return `${base}${servicePath}`;
+  return `${base}${absolutePath}`;
 }

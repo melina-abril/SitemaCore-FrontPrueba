@@ -1,16 +1,13 @@
-import { Injectable, Signal, computed, signal } from '@angular/core';
-
-export interface SessionUser {
-  name: string;
-  role: 'OPERADOR' | 'SUPERVISOR';
-}
+import { Injectable, signal, type WritableSignal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class CurrentUser {
-  readonly user: Signal<SessionUser> = signal<SessionUser>({
-    name: 'María Fernández',
+  public readonly user: WritableSignal<{ name: string; role: 'OPERADOR' | 'SUPERVISOR' }> = signal({
+    name: 'Lucía Gómez',
     role: 'SUPERVISOR'
   });
 
-  readonly isSupervisor: Signal<boolean> = computed(() => this.user().role === 'SUPERVISOR');
+  public setRole(role: 'OPERADOR' | 'SUPERVISOR'): void {
+    this.user.update((current) => ({ ...current, role }));
+  }
 }

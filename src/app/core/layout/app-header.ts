@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { CurrentUser } from '../session/current-user';
-import { sessionView } from './session-view';
+import { readSessionView } from './session-view';
 
 @Component({
   selector: 'app-header',
@@ -9,6 +9,6 @@ import { sessionView } from './session-view';
   styleUrl: './app-header.scss'
 })
 export class AppHeader {
-  private readonly session = inject(CurrentUser);
-  readonly user = computed(() => sessionView(this.session));
+  private readonly currentUser = inject(CurrentUser);
+  public readonly session = computed(() => readSessionView(this.currentUser));
 }

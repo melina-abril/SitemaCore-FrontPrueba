@@ -1,13 +1,13 @@
 <header class="header">
   <div class="header-inner">
     <div>
-      <a class="skip-link" href="#contenido">Ir al contenido</a>
-      <p class="eyebrow">Plataforma transaccional</p>
-      <span class="app-title">Sistema Core</span>
+      <strong class="app-title">Sistema Core</strong>
+      <span class="subtitle">Operación transaccional</span>
     </div>
-    <div class="session" aria-label="Sesión actual">
-      <span class="session-name">{{ user().name }}</span>
-      <span class="chip">{{ user().role === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</span>
+    @let user = session();
+    <div class="user" aria-label="Sesión actual">
+      <span>{{ user.name }}</span>
+      <span class="chip">{{ user.role === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</span>
     </div>
   </div>
 </header>

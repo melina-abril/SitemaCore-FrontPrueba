@@ -13,15 +13,24 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
-            "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
+            "assets": [{ "glob": "**/*", "input": "public" }],
             "styles": ["src/styles.scss"],
-            "assets": [{ "glob": "**/*", "input": "public", "output": "/" }]
+            "inlineStyleLanguage": "scss"
           },
           "configurations": {
-            "production": { "outputHashing": "all", "budgets": [{ "type": "initial", "maximumWarning": "1mb", "maximumError": "2mb" }] },
-            "development": { "optimization": false, "sourceMap": true }
+            "production": {
+              "budgets": [
+                { "type": "initial", "maximumWarning": "1mb", "maximumError": "2mb" },
+                { "type": "anyComponentStyle", "maximumWarning": "6kb", "maximumError": "12kb" }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
           },
           "defaultConfiguration": "development"
         },

@@ -1,0 +1,25 @@
+<section aria-labelledby="clients-title">
+  <header class="page-head"><div><h1 id="clients-title" class="page-title">Maestro de clientes</h1><p>Buscá por nombre, documento o número de cliente.</p></div><a class="btn primary" routerLink="nuevo">Nuevo cliente</a></header>
+  <form class="card search-form" (submit)="$event.preventDefault(); load()">
+    <div class="field grow"><label for="client-search">Buscar clientes</label><input id="client-search" name="search" type="search" [value]="search" (input)="search = $any($event.target).value" placeholder="Nombre, documento o número"></div>
+    <button class="btn primary" type="submit">Buscar</button>
+  </form>
+  @if (state(); as s) {
+    @switch (s.status) {
+      @case ('loading') { <app-loading-state /> }
+      @case ('error') { <app-error-alert [message]="s.message" /><button class="btn" type="button" (click)="load()">Reintentar</button> }
+      @case ('empty') { <app-empty-state message="No se encontraron clientes para esta búsqueda." /> }
+      @case ('ready') {
+        <div class="client-grid">@for (client of s.data; track client.id) {
+          <article class="card client-card"><div class="card-heading"><h2>{{ client.name }}</h2><span class="chip">{{ client.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}</span></div>
+            <p class="meta">{{ client.customerNumber }} · Documento {{ client.document }}</p>
+            <p>{{ client.email || 'Sin correo' }} · {{ client.phone || 'Sin teléfono' }}</p>
+            <div class="actions"><a class="btn small" [routerLink]="[client.id]">Ver y editar</a><a class="btn small" [routerLink]="['/cuentas']" [queryParams]="{ clienteId: client.id }">Cuentas</a>
+              @if (currentUser.user().role === 'SUPERVISOR' && client.status === 'ACTIVE') { <a class="btn danger small" [routerLink]="['baja', client.id]">Dar de baja</a> }
+            </div>
+          </article>
+        }</div>
+      }
+    }
+  }
+</section>

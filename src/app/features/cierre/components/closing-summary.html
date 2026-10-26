@@ -1,0 +1,19 @@
+<section class="card" aria-labelledby="closing-summary-title">
+  <h2 id="closing-summary-title">Resumen del cierre</h2>
+  @if (closing(); as summary) {
+    <div class="summary-grid">
+      <div class="stat"><span class="stat-label">Total de débitos</span><strong class="stat-value">{{ (summary.totalDebitos ?? 0) | number:'1.2-2' }}</strong></div>
+      <div class="stat"><span class="stat-label">Total de créditos</span><strong class="stat-value ok">{{ (summary.totalCreditos ?? 0) | number:'1.2-2' }}</strong></div>
+    </div>
+    <h3>Saldos de cierre</h3>
+    @if ((summary.saldosCierre | keyvalue).length) {
+      <ul class="balances">
+        @for (balance of summary.saldosCierre | keyvalue; track balance.key) {
+          <li><span>{{ balance.key }}</span><strong>{{ balance.value | number:'1.2-2' }}</strong></li>
+        }
+      </ul>
+    } @else {
+      <p class="empty">No hay saldos de cierre para mostrar.</p>
+    }
+  }
+</section>
