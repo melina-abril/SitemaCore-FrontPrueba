@@ -1,17 +1,11 @@
-<nav aria-label="Accesos directos">
+<nav aria-label="Accesos directos" class="card">
   <h2>Accesos directos</h2>
   <div class="links">
-    @for (link of links; track link.path) {
-      <a class="card quick-link" [routerLink]="link.path">
-        <strong>{{ link.label }}</strong>
-        <span>{{ link.description }}</span>
-      </a>
-    }
-    @if (role() === 'SUPERVISOR') {
-      <a class="card quick-link" routerLink="/cierre">
-        <strong>Cierre diario</strong>
-        <span>Gestionar el cierre operativo</span>
-      </a>
+    <a routerLink="/clientes" class="quick-link">Clientes <span aria-hidden="true">→</span></a>
+    <a routerLink="/cuentas" class="quick-link">Cuentas <span aria-hidden="true">→</span></a>
+    <a routerLink="/movimientos" class="quick-link">Movimientos <span aria-hidden="true">→</span></a>
+    @if (isSupervisor()) {
+      <a routerLink="/cierre" class="quick-link">Cierre diario <span aria-hidden="true">→</span></a>
     }
   </div>
 </nav>

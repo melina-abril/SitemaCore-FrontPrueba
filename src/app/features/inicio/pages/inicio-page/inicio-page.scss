@@ -1,4 +1,6 @@
-.inicio-page { display: grid; gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
-.page-title { margin: 0; }
-.welcome { color: var(--muted); margin: .35rem 0 0; }
-.alert p { margin: 0 0 .75rem; }
+:host { display: block; color: var(--text); }
+.welcome { margin: 0 0 1.5rem; color: var(--muted); }
+.welcome strong { color: var(--text); }
+app-day-summary-card { display: block; margin-bottom: 1.5rem; }
+app-error-alert { display: block; margin-bottom: 0.75rem; }
+.btn { margin-bottom: 1.5rem; }

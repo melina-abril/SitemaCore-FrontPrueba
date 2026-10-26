@@ -1,0 +1,10 @@
+:host { display: grid; gap: 1.5rem; }
+h2 { font-size: 1.1rem; margin: 0 0 1rem; }
+.intro, .hint, .card p { color: var(--muted); }
+.hint { margin-bottom: 0; font-size: .875rem; }
+.search-form, .open-form { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem; }
+.field { display: grid; gap: .35rem; min-width: 9rem; }
+.field.grow { flex: 1; }
+.field input, .field select { width: 100%; box-sizing: border-box; }
+.account-list { display: grid; gap: .75rem; }
+.success { color: var(--success) !important; font-weight: 600; }

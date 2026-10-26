@@ -1,0 +1,21 @@
+<app-page-header title="Baja de cliente"><a class="btn" routerLink="/clientes">Volver al listado</a></app-page-header>
+@if (loading()) {
+  <app-loading-state />
+} @else {
+  @if (error()) { <app-error-alert [message]="error()" /> }
+  @if (client(); as selected) {
+    <section class="card">
+      <h2>{{ selected.name }}</h2>
+      <p>Cliente {{ selected.customerNumber }} · Documento {{ selected.document }}</p>
+      @if (selected.status === 'ACTIVE') {
+        <p>Antes de confirmar, verifica que todas las cuentas del cliente tengan saldo cero. La baja quedará registrada para auditoría.</p>
+        <div class="actions"><button class="btn danger" type="button" [disabled]="submitting()" (click)="deactivate()">{{ submitting() ? 'Procesando…' : 'Confirmar baja' }}</button><a class="btn" routerLink="/clientes">Cancelar</a></div>
+      } @else {
+        <p>Este cliente ya se encuentra inactivo.</p>
+      }
+    </section>
+  } @else {
+    <app-empty-state message="No se encontró el cliente solicitado." />
+    <button class="btn" type="button" (click)="load()">Reintentar</button>
+  }
+}

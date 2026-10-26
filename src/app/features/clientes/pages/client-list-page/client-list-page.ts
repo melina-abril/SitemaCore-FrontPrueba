@@ -1,32 +1,43 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { CurrentUserService } from '../../../../core/session/current-user';
+import { CurrentUser } from '../../../../core/session/current-user';
+import { EmptyState } from '../../../../shared/components/empty-state';
+import { ErrorAlert } from '../../../../shared/components/error-alert';
+import { LoadingState } from '../../../../shared/components/loading-state';
+import { PageHeader } from '../../../../shared/components/page-header';
+import { LoadState } from '../../../../shared/models/load-state';
 import { ClientesService } from '../../data-access/clientes.service';
-import { ClientResponse } from '../../models/clientes.models';
+import { ClientResponse } from '../../models/client.models';
 
 @Component({
   selector: 'app-client-list-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, EmptyState, ErrorAlert, LoadingState, PageHeader],
   templateUrl: './client-list-page.html',
   styleUrl: './client-list-page.scss'
 })
 export class ClientListPage {
-  readonly session = inject(CurrentUserService);
   private readonly service = inject(ClientesService);
-  readonly clients = signal<ClientResponse[]>([]);
-  readonly search = signal('');
-  readonly loading = signal(false);
-  readonly error = signal('');
+  private readonly destroyRef = inject(DestroyRef);
+  readonly currentUser = inject(CurrentUser);
+  readonly query = signal('');
+  readonly state = signal<LoadState<ClientResponse[]>>({ status: 'loading' });
 
-  constructor() { this.load(); }
+  constructor() {
+    this.search();
+  }
 
-  load(): void {
-    this.loading.set(true);
-    this.error.set('');
-    this.service.buscarClientes(this.search()).subscribe({
-      next: clients => { this.clients.set(clients); this.loading.set(false); },
-      error: () => { this.error.set('No se pudieron cargar los clientes. Intentá nuevamente.'); this.loading.set(false); }
+  search(): void {
+    this.state.set({ status: 'loading' });
+    this.service.buscarClientes(this.query()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: clients => this.state.set(clients.length ? { status: 'ready', data: clients } : { status: 'empty' }),
+      error: () => this.state.set({ status: 'error', message: 'No se pudieron cargar los clientes. Inténtalo de nuevo.' })
     });
+  }
+
+  clearSearch(): void {
+    this.query.set('');
+    this.search();
   }
 }

@@ -1,11 +1,13 @@
 <header class="header">
-  <div><a class="app-title" href="/inicio">Sistema Core</a><span class="subtitle">Operación transaccional</span></div>
-  <div class="session">
-    <span>Usuario: <strong>{{ session.user().name }}</strong></span>
-    <label for="role-select">Rol de demostración</label>
-    <select id="role-select" [value]="session.user().role" (change)="session.setRole($any($event.target).value)">
-      <option value="OPERADOR">Operador</option>
-      <option value="SUPERVISOR">Supervisor</option>
-    </select>
+  <div class="header-inner">
+    <div>
+      <a class="skip-link" href="#contenido">Ir al contenido</a>
+      <p class="eyebrow">Plataforma transaccional</p>
+      <span class="app-title">Sistema Core</span>
+    </div>
+    <div class="session" aria-label="Sesión actual">
+      <span class="session-name">{{ user().name }}</span>
+      <span class="chip">{{ user().role === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</span>
+    </div>
   </div>
 </header>

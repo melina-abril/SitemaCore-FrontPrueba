@@ -15,12 +15,12 @@
             "browser": "src/main.ts",
             "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
-            "assets": [{ "glob": "**/*", "input": "public", "output": "/" }],
+            "inlineStyleLanguage": "scss",
             "styles": ["src/styles.scss"],
-            "inlineStyleLanguage": "scss"
+            "assets": [{ "glob": "**/*", "input": "public", "output": "/" }]
           },
           "configurations": {
-            "production": { "outputHashing": "all" },
+            "production": { "outputHashing": "all", "budgets": [{ "type": "initial", "maximumWarning": "1mb", "maximumError": "2mb" }] },
             "development": { "optimization": false, "sourceMap": true }
           },
           "defaultConfiguration": "development"

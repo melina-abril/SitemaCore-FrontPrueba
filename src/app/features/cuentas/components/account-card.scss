@@ -1,6 +1,4 @@
-.account-card { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
-h3 { margin: 0; color: var(--text); }
-p, .account-balance span { color: var(--muted); }
-.account-balance { display: flex; flex-direction: column; align-items: flex-end; gap: .5rem; }
-.account-balance strong { font-size: 1.25rem; color: var(--text); }
-@media (max-width: 480px) { .account-balance { align-items: flex-start; } }
+.account-card { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+h2 { margin: 0; font-size: 1rem; }
+p { margin: .25rem 0 0; color: var(--muted); }
+.account-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }

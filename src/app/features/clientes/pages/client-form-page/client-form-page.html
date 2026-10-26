@@ -1,5 +1,31 @@
-<section aria-labelledby="form-title"><a routerLink="/clientes">← Volver a clientes</a><h1 id="form-title" class="page-title">{{ id ? 'Modificar cliente' : 'Alta de cliente' }}</h1><p>Los campos marcados con * son obligatorios. El documento debe ser único.</p>
-@if (loading()) { <p role="status">Cargando cliente…</p> }
-@else if (error() && id && !form) { <div class="alert" role="alert">{{ error() }} <button type="button" class="btn small" (click)="load()">Reintentar</button></div> }
-@else { @if (error()) { <div class="alert" role="alert">{{ error() }}</div> } <app-client-form [busy]="busy()" (submitted)="save($event)" /> }
-</section>
+<app-page-header [title]="id === null ? 'Nuevo cliente' : 'Detalle del cliente'">
+  <a class="btn" routerLink="/clientes">Volver al listado</a>
+</app-page-header>
+@if (loading()) {
+  <app-loading-state />
+} @else {
+  @if (error()) { <app-error-alert [message]="error()" /> }
+  @if (id !== null && !client()) {
+    <app-empty-state message="No se dispone de información de este cliente." />
+    <button class="btn" type="button" (click)="load()">Reintentar</button>
+  } @else {
+    @if (saved()) { <p class="success" role="status">Los datos del cliente se guardaron correctamente.</p> }
+    <section class="card">
+      @if (client(); as selected) {
+        <p><strong>N.º de cliente:</strong> {{ selected.customerNumber }} · <strong>Estado:</strong> {{ selected.status === 'ACTIVE' ? 'Activo' : 'Inactivo' }}</p>
+      }
+      <form (submit)="$event.preventDefault(); save()">
+        <div class="fields">
+          <div class="field"><label for="client-document">Documento *</label><input id="client-document" name="document" required [value]="form().document" #documentInput (input)="update('document', documentInput.value)" /></div>
+          <div class="field"><label for="client-name">Nombre *</label><input id="client-name" name="name" required [value]="form().name" #nameInput (input)="update('name', nameInput.value)" /></div>
+          <div class="field"><label for="client-email">Correo electrónico</label><input id="client-email" name="email" type="email" [value]="form().email || ''" #emailInput (input)="update('email', emailInput.value)" /></div>
+          <div class="field"><label for="client-phone">Teléfono</label><input id="client-phone" name="phone" type="tel" [value]="form().phone || ''" #phoneInput (input)="update('phone', phoneInput.value)" /></div>
+        </div>
+        <button class="btn primary" type="submit" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar cliente' }}</button>
+      </form>
+      @if (client(); as selected) {
+        <div class="links"><a [routerLink]="['/cuentas']" [queryParams]="{ clienteId: selected.id }">Ver cuentas</a><a routerLink="/clientes">Volver a clientes</a></div>
+      }
+    </section>
+  }
+}

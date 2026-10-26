@@ -1,12 +1,7 @@
-import { inject } from '@angular/core';
-import { CanMatchFn, Routes, Router } from '@angular/router';
-import { CurrentUser } from '../../core/session/current-user';
+import { Routes } from '@angular/router';
+import { supervisorGuard } from '../../core/session/supervisor-guard';
 
-const supervisorOnly: CanMatchFn = () => inject(CurrentUser).user().role === 'SUPERVISOR' || inject(Router).createUrlTree(['/movimientos']);
-
-export const routes: Routes = [
-  { path: '', loadComponent: () => import('./pages/movimientos-page/movimientos-page').then(module => module.MovimientosPage) },
-  { path: 'ajustar/:id', canMatch: [supervisorOnly], loadComponent: () => import('./pages/adjustment-page/adjustment-page').then(module => module.AdjustmentPage) }
+export const MOVIMIENTOS_ROUTES: Routes = [
+  { path: '', title: 'Registro de movimientos', loadComponent: () => import('./pages/movimientos-page/movimientos-page').then(module => module.MovimientosPage) },
+  { path: 'ajustes/:id', title: 'Ajustar movimiento', canMatch: [supervisorGuard], loadComponent: () => import('./pages/movimientos-page/movimientos-page').then(module => module.MovimientosPage) }
 ];
-
-export default routes;

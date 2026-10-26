@@ -1,7 +1,7 @@
 import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { delay } from 'rxjs';
 
-/** Respuesta simulada; reemplazar por la respuesta HTTP al conectar el backend. */
+// Respuesta mock; se reemplaza al conectar el backend.
 export function mockResponse<T>(data: T): Observable<T> {
-  return of(data).pipe(delay(250));
+  return of(data).pipe(delay(200));
 }
