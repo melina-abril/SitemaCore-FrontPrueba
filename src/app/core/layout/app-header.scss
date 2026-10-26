@@ -1,0 +1,7 @@
+.header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding: 1rem clamp(1rem, 3vw, 2rem); min-height: 76px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.app-title { color: var(--text); font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+.user-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.user-name { color: var(--text); font-weight: 500; }
+.user-controls label { margin-left: .4rem; }
+.user-controls select { max-width: 100%; }
+@media (max-width: 520px) { .header { align-items: flex-start; } .user-controls { width: 100%; } }

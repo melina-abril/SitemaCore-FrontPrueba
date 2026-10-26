@@ -1,0 +1,11 @@
+:host { display: block; }
+h2 { margin: 0 0 1rem; font-size: 1.15rem; }
+h3 { margin: 1.5rem 0 .75rem; font-size: 1rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; }
+.stat-value { font-size: 1.3rem; overflow-wrap: anywhere; }
+.totals { display: flex; flex-wrap: wrap; gap: 1rem 2rem; margin-top: 1.25rem; }
+.totals p { display: flex; flex-direction: column; margin: 0; }
+.totals span, .balances span { color: var(--muted); }
+.balances { list-style: none; padding: 0; margin: 0; }
+.balances li { display: flex; justify-content: space-between; gap: 1rem; padding: .6rem 0; border-bottom: 1px solid var(--border); }
+.alert { margin-top: 1rem; }

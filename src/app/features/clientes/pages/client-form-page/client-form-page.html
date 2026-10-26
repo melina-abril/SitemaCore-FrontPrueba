@@ -1,0 +1,5 @@
+<section aria-labelledby="form-title"><a routerLink="/clientes">← Volver a clientes</a><h1 id="form-title" class="page-title">{{ id ? 'Modificar cliente' : 'Alta de cliente' }}</h1><p>Los campos marcados con * son obligatorios. El documento debe ser único.</p>
+@if (loading()) { <p role="status">Cargando cliente…</p> }
+@else if (error() && id && !form) { <div class="alert" role="alert">{{ error() }} <button type="button" class="btn small" (click)="load()">Reintentar</button></div> }
+@else { @if (error()) { <div class="alert" role="alert">{{ error() }}</div> } <app-client-form [busy]="busy()" (submitted)="save($event)" /> }
+</section>

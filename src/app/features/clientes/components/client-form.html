@@ -1,0 +1,8 @@
+<form class="card client-form" (ngSubmit)="submit()" #form="ngForm">
+  <div class="field"><label for="client-name">Nombre *</label><input id="client-name" name="name" [(ngModel)]="request.name" required maxlength="120" autocomplete="name" /></div>
+  <div class="field"><label for="client-document">Documento *</label><input id="client-document" name="document" [(ngModel)]="request.document" required maxlength="30" /></div>
+  <div class="field"><label for="client-email">Correo electrónico</label><input id="client-email" name="email" type="email" [(ngModel)]="request.email" email autocomplete="email" /></div>
+  <div class="field"><label for="client-phone">Teléfono</label><input id="client-phone" name="phone" type="tel" [(ngModel)]="request.phone" autocomplete="tel" /></div>
+  <div class="field full"><label for="client-address">Dirección</label><input id="client-address" name="address" [(ngModel)]="request.address" autocomplete="street-address" /></div>
+  <div class="full"><button class="btn primary" type="submit" [disabled]="form.invalid || busy()">{{ busy() ? 'Guardando…' : 'Guardar cliente' }}</button></div>
+</form>

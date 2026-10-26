@@ -1,0 +1,7 @@
+.client-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; max-width: 760px; }
+.full { grid-column: 1 / -1; }
+.field { display: flex; flex-direction: column; gap: .35rem; }
+.field label { color: var(--muted); font-size: .8rem; font-weight: 600; }
+.field input { width: 100%; padding: .65rem; border: 1px solid var(--border); border-radius: .5rem; font: inherit; color: var(--text); background: var(--surface); }
+.field input:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (max-width: 600px) { .client-form { grid-template-columns: 1fr; } }

@@ -1,0 +1,46 @@
+<section aria-labelledby="detail-title">
+  <h1 id="detail-title" class="page-title">{{ closeMode ? 'Cerrar cuenta' : 'Detalle de cuenta' }}</h1>
+  <p><a routerLink="/cuentas" [queryParams]="detail() ? { customerId: detail()!.account.customerId } : {}">Volver a cuentas</a></p>
+  @if (loading()) {
+    <p role="status">Cargando detalle…</p>
+  } @else if (error()) {
+    <div class="alert" role="alert">{{ error() }} <button class="btn small" type="button" (click)="load()">Reintentar</button></div>
+  } @else if (detail(); as record) {
+    <article class="card">
+      <h2>Cuenta {{ record.account.number }}</h2>
+      <dl class="account-data">
+        <div><dt>Cliente</dt><dd>{{ record.account.customerId }}</dd></div>
+        <div><dt>Tipo</dt><dd>{{ record.account.type }}</dd></div>
+        <div><dt>Moneda</dt><dd>{{ record.account.currency }}</dd></div>
+        <div><dt>Saldo actual</dt><dd>{{ record.account.balance.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }} {{ record.account.currency }}</dd></div>
+        <div><dt>Estado</dt><dd><span class="chip">{{ record.account.status === 'OPEN' ? 'Abierta' : 'Cerrada' }}</span></dd></div>
+      </dl>
+      @if (closeMode) {
+        @if (record.account.status === 'OPEN' && record.account.balance === 0) {
+          <p>Confirmá el cierre de esta cuenta. Esta acción requiere el rol de supervisor.</p>
+          @if (actionError()) { <p class="alert" role="alert">{{ actionError() }}</p> }
+          <button class="btn danger" type="button" [disabled]="closing()" (click)="close()">{{ closing() ? 'Cerrando cuenta…' : 'Confirmar cierre' }}</button>
+        } @else {
+          <p class="alert" role="status">La cuenta debe estar abierta y tener saldo cero para poder cerrarse.</p>
+        }
+      } @else if (user().role === 'SUPERVISOR' && record.account.status === 'OPEN' && record.account.balance === 0) {
+        <a class="btn danger" [routerLink]="['/cuentas/cerrar', record.account.id]">Cerrar cuenta</a>
+      }
+    </article>
+    @if (!closeMode) {
+      <section class="card movements" aria-labelledby="recent-title">
+        <h2 id="recent-title">Últimos movimientos</h2>
+        @if (record.recentMovements.length === 0) {
+          <p class="empty">Esta cuenta todavía no tiene movimientos.</p>
+        } @else {
+          <div class="table-wrap"><table><thead><tr><th scope="col">Fecha</th><th scope="col">Tipo</th><th scope="col">Concepto</th><th scope="col">Importe</th><th scope="col">Saldo resultante</th></tr></thead><tbody>
+            @for (movement of record.recentMovements; track movement.id) {
+              <tr><td>{{ movement.date }}</td><td>{{ movement.type === 'CREDIT' ? 'Crédito' : movement.type === 'DEBIT' ? 'Débito' : movement.type }}</td><td>{{ movement.concept }}</td><td>{{ movement.amount.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }} {{ record.account.currency }}</td><td>{{ movement.resultingBalance.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }} {{ record.account.currency }}</td></tr>
+            }
+          </tbody></table></div>
+        }
+        <a routerLink="/movimientos">Consultar movimientos</a>
+      </section>
+    }
+  }
+</section>
