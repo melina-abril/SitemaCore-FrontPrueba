@@ -1,31 +1,18 @@
-export interface ClientRequest {
-  name: string;
-  document: string;
-  email: string | null;
-  phone: string | null;
-  address: string | null;
-}
+export type ClientStatus = 'ACTIVE' | 'INACTIVE';
 
-export interface ClientAudit {
-  action: string;
-  user: string;
-  occurredAt: string;
+export interface ClientRequest {
+  document: string;
+  name: string;
+  email: string;
+  phone: string;
 }
 
 export interface ClientResponse {
   id: number;
-  number: string;
-  name: string;
+  customerNumber: string;
   document: string;
-  email: string | null;
-  phone: string | null;
-  address: string | null;
-  status: string;
-  audit: ClientAudit;
-}
-
-export interface ClientSearch {
-  name?: string;
-  document?: string;
-  number?: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: ClientStatus;
 }

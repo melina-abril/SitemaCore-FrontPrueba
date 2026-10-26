@@ -1,9 +1,1 @@
-section > a, .card a { color: var(--primary); }
-.subtitle { color: var(--muted); margin-top: -.5rem; }
-.card { margin: 1rem 0; }
-h2 { font-size: 1.1rem; }
-dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-dt { color: var(--muted); font-size: .8rem; font-weight: 600; }
-dd { margin: .2rem 0 0; overflow-wrap: anywhere; }
-.actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
-@media (max-width: 600px) { dl { grid-template-columns: 1fr; } }
+.detail-page { display: grid; gap: 1rem; max-width: 42rem; } .detail-page > a { color: var(--primary); } .muted { color: var(--muted); margin: 0; } .client-form { display: grid; gap: 1rem; } .field { display: grid; gap: .35rem; } input { width: 100%; padding: .65rem; border: 1px solid var(--border); border-radius: .4rem; font: inherit; } input:focus { outline: 2px solid var(--primary); outline-offset: 1px; } .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; } .alert { padding: 1rem; } .alert .btn { margin-left: .75rem; }

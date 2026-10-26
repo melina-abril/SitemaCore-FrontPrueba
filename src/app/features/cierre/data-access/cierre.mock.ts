@@ -1,25 +1,35 @@
-import { DailyClose } from '../models/cierre.models';
+import { CierreDto } from '../models/cierre.models';
 
-// Respuestas mock a reemplazar al conectar el backend.
-export const mockDailyClose: DailyClose = {
-  fechaOperativa: '2026-06-15',
-  cantidadMovimientos: 38,
+export const mockCierreActual: CierreDto = {
+  fechaOperativa: '2026-02-25',
   estado: 'PENDIENTE',
-  totalDebitos: null,
-  totalCreditos: null,
-  saldosCierre: null,
-  motivoError: null
+  cantidadMovimientos: 184,
+  totalDebitos: 0,
+  totalCreditos: 0,
+  saldosCierre: {},
+  motivoError: null,
+  cerradoEn: null
 };
 
-export const mockCloseHistory: DailyClose[] = [
+export const mockHistorialCierres: CierreDto[] = [
   {
-    fechaOperativa: '2026-06-12', cantidadMovimientos: 42, estado: 'COMPLETADO',
-    totalDebitos: 184500.25, totalCreditos: 201300.50,
-    saldosCierre: { 'CTA-1001': 128400.25, 'CTA-1002': 72900 }, motivoError: null
+    fechaOperativa: '2026-02-24',
+    estado: 'COMPLETADO',
+    cantidadMovimientos: 172,
+    totalDebitos: 128450.75,
+    totalCreditos: 149800.5,
+    saldosCierre: { ARS: 2468120.8, USD: 38250 },
+    motivoError: null,
+    cerradoEn: '2026-02-24T20:15:00Z'
   },
   {
-    fechaOperativa: '2026-06-11', cantidadMovimientos: 35, estado: 'COMPLETADO',
-    totalDebitos: 153200, totalCreditos: 167850,
-    saldosCierre: { 'CTA-1001': 117250, 'CTA-1002': 67250 }, motivoError: null
+    fechaOperativa: '2026-02-23',
+    estado: 'COMPLETADO',
+    cantidadMovimientos: 156,
+    totalDebitos: 96500,
+    totalCreditos: 112340.25,
+    saldosCierre: { ARS: 2446771.05, USD: 38250 },
+    motivoError: null,
+    cerradoEn: '2026-02-23T20:09:00Z'
   }
 ];

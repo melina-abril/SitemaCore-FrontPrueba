@@ -1,24 +1,74 @@
-<header class="page-heading"><div><h1 class="page-title">Cierre diario</h1><p>Consultá el estado de la fecha operativa y los cierres anteriores.</p></div><button class="btn small" type="button" (click)="reload()" [disabled]="loading()">Actualizar</button></header>
-@if (loading()) { <p role="status">Cargando información del cierre…</p> }
-@else if (error()) { <div class="alert" role="alert">No se pudo consultar el cierre diario. <button class="btn small" type="button" (click)="reload()">Reintentar</button></div> }
-@else {
-  @if (close(); as dailyClose) {
-    <app-close-summary [close]="dailyClose" [balances]="balances()" />
-    @if (isSupervisor()) {
-      <div class="actions">
-        @if (dailyClose.estado === 'PENDIENTE') { <a class="btn primary" routerLink="ejecutar">Ejecutar cierre</a> }
-        @if (dailyClose.estado === 'CON_ERROR') { <a class="btn primary" routerLink="reproceso">Reprocesar cierre</a> }
+<section class="cierre-page" aria-labelledby="cierre-title">
+  <header class="page-heading">
+    <div>
+      <h1 id="cierre-title" class="page-title">Cierre diario</h1>
+      <p>Consultá el estado de la fecha operativa y sus cierres anteriores.</p>
+    </div>
+    <button class="btn small" type="button" (click)="refresh()" [disabled]="loading() || working()">Actualizar</button>
+  </header>
+
+  @if (notice()) { <p class="success-message" role="status">{{ notice() }}</p> }
+  @if (actionError()) { <p class="alert" role="alert">{{ actionError() }}</p> }
+
+  @if (loading()) {
+    <p class="card" role="status">Cargando cierre diario…</p>
+  } @else if (error()) {
+    <div class="alert" role="alert">{{ error() }} <button class="btn small" type="button" (click)="refresh()">Reintentar</button></div>
+  } @else if (cierre(); as current) {
+    <article class="card" aria-labelledby="current-title">
+      <div class="card-heading">
+        <h2 id="current-title">Fecha operativa: {{ formatDate(current.fechaOperativa) }}</h2>
+        <span class="chip big" [class.ok]="current.estado === 'COMPLETADO'" [class.warn]="current.estado === 'PENDIENTE' || current.estado === 'EN_CURSO'" [class.failed]="current.estado === 'CON_ERROR'">{{ stateLabel(current.estado) }}</span>
       </div>
-    }
-    @if (dailyClose.estado === 'EN_CURSO') { <p role="status">El cierre está en curso. Actualizá la página para consultar el resultado.</p> }
-    @if (dailyClose.estado === 'COMPLETADO') { <p role="status">El día ya está cerrado. No se puede ejecutar otro cierre para esta fecha.</p> }
-  } @else { <p class="empty">No hay información para la fecha operativa.</p> }
-  <section class="card history" aria-labelledby="history-title">
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-label">Movimientos del día</span><strong class="stat-value">{{ current.cantidadMovimientos }}</strong></div>
+        <div class="stat"><span class="stat-label">Estado del cierre</span><strong>{{ stateLabel(current.estado) }}</strong></div>
+      </div>
+      @if (current.estado === 'COMPLETADO') {
+        <section aria-label="Resumen del cierre">
+          <h3>Resumen del cierre</h3>
+          <div class="stat-grid">
+            <div class="stat"><span class="stat-label">Total de débitos</span><strong>{{ formatAmount(current.totalDebitos) }}</strong></div>
+            <div class="stat"><span class="stat-label">Total de créditos</span><strong>{{ formatAmount(current.totalCreditos) }}</strong></div>
+          </div>
+          <h3>Saldos de cierre</h3>
+          @if (balances(current).length) {
+            <dl class="balances">@for (balance of balances(current); track balance.currency) { <div><dt>{{ balance.currency }}</dt><dd>{{ formatAmount(balance.amount) }}</dd></div> }</dl>
+          } @else { <p class="empty">No hay saldos de cierre disponibles.</p> }
+          @if (current.cerradoEn) { <p class="meta">Finalizado: {{ current.cerradoEn }}</p> }
+        </section>
+      }
+      @if (current.estado === 'CON_ERROR') {
+        <p class="alert" role="alert">El cierre falló: {{ current.motivoError || 'No se informó el motivo.' }} El día sigue abierto.</p>
+        <button class="btn primary" type="button" (click)="retry()" [disabled]="working()">{{ working() ? 'Reprocesando…' : 'Reprocesar cierre' }}</button>
+      } @else if (current.estado === 'PENDIENTE') {
+        <button class="btn primary" type="button" (click)="execute()" [disabled]="working()">{{ working() ? 'Ejecutando…' : 'Ejecutar cierre' }}</button>
+      } @else if (current.estado === 'EN_CURSO') {
+        <p role="status">El cierre está en curso. Actualizá para ver el resultado.</p>
+      }
+    </article>
+  } @else { <p class="card empty">No hay información del cierre para mostrar.</p> }
+
+  <section class="card" aria-labelledby="history-title">
     <h2 id="history-title">Historial de cierres</h2>
-    @if (history().length) {
-      <div class="table-wrap"><table><thead><tr><th scope="col">Fecha</th><th scope="col">Movimientos</th><th scope="col">Estado</th><th scope="col">Débitos</th><th scope="col">Créditos</th></tr></thead><tbody>
-        @for (item of history(); track item.fechaOperativa) { <tr><td>{{ item.fechaOperativa }}</td><td>{{ item.cantidadMovimientos }}</td><td>@switch (item.estado) { @case ('PENDIENTE') { Pendiente } @case ('EN_CURSO') { En curso } @case ('COMPLETADO') { Completado } @case ('CON_ERROR') { Con error } }</td><td>{{ item.totalDebitos == null ? '—' : (item.totalDebitos | number:'1.2-2') }}</td><td>{{ item.totalCreditos == null ? '—' : (item.totalCreditos | number:'1.2-2') }}</td></tr> }
-      </tbody></table></div>
-    } @else { <p class="empty">Todavía no hay cierres anteriores.</p> }
+    @if (historyLoading()) {
+      <p role="status">Cargando historial…</p>
+    } @else if (historyError()) {
+      <p class="alert" role="alert">{{ historyError() }}</p>
+    } @else if (historial().length === 0) {
+      <p class="empty">Todavía no hay cierres anteriores.</p>
+    } @else {
+      <div class="table-scroll"><table>
+        <thead><tr><th scope="col">Fecha operativa</th><th scope="col">Estado</th><th scope="col">Movimientos</th><th scope="col">Débitos</th><th scope="col">Créditos</th><th scope="col">Saldos de cierre</th></tr></thead>
+        <tbody>@for (item of historial(); track item.fechaOperativa) {
+          <tr>
+            <th scope="row">{{ formatDate(item.fechaOperativa) }}</th>
+            <td><span class="chip" [class.ok]="item.estado === 'COMPLETADO'" [class.failed]="item.estado === 'CON_ERROR'">{{ stateLabel(item.estado) }}</span></td>
+            <td>{{ item.cantidadMovimientos }}</td><td>{{ formatAmount(item.totalDebitos) }}</td><td>{{ formatAmount(item.totalCreditos) }}</td>
+            <td>@for (balance of balances(item); track balance.currency) { <span class="balance-line">{{ balance.currency }}: {{ formatAmount(balance.amount) }}</span> } @if (balances(item).length === 0) { — }</td>
+          </tr>
+        }</tbody>
+      </table></div>
+    }
   </section>
-}
+</section>

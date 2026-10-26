@@ -1,52 +1,37 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CurrentUser } from '../../../../core/session/current-user';
+import { Component, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CuentasService } from '../../data-access/cuentas.service';
-import { Detail } from '../../models/cuentas.models';
+import { AccountDetail } from '../../models/cuentas.models';
+import { CurrentUserService } from '../../../../core/session/current-user';
 
 @Component({
   selector: 'app-account-detail-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './account-detail-page.html',
   styleUrl: './account-detail-page.scss'
 })
-export class AccountDetailPage implements OnInit {
-  private readonly service = inject(CuentasService);
+export class AccountDetailPage {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  readonly user = inject(CurrentUser).user;
-  readonly detail = signal<Detail | null>(null);
-  readonly loading = signal(false);
+  private readonly service = inject(CuentasService);
+  readonly currentUser = inject(CurrentUserService);
+  readonly account = signal<AccountDetail | null>(null);
+  readonly loading = signal(true);
   readonly error = signal('');
-  readonly actionError = signal('');
-  readonly closing = signal(false);
-  readonly closeMode = this.route.snapshot.data['closeMode'] === true;
-  readonly id = Number(this.route.snapshot.paramMap.get('id'));
+  private readonly id = Number(this.route.snapshot.paramMap.get('id'));
 
-  ngOnInit(): void { this.load(); }
+  constructor() { this.load(); }
 
   load(): void {
-    if (!Number.isInteger(this.id) || this.id < 1) {
-      this.error.set('El identificador de cuenta no es válido.');
-      return;
+    if (!Number.isSafeInteger(this.id) || this.id <= 0) {
+      this.error.set('Número de cuenta inválido.'); this.loading.set(false); return;
     }
     this.loading.set(true);
     this.error.set('');
-    this.service.getAccount(this.id).subscribe({
-      next: detail => { this.detail.set(detail); this.loading.set(false); },
-      error: () => { this.error.set('No se pudo cargar el detalle de la cuenta.'); this.loading.set(false); }
-    });
-  }
-
-  close(): void {
-    const account = this.detail()?.account;
-    if (!this.closeMode || this.user().role !== 'SUPERVISOR' || !account || account.status !== 'OPEN' || account.balance !== 0) return;
-    this.closing.set(true);
-    this.actionError.set('');
-    this.service.closeAccount(account.id).subscribe({
-      next: () => { this.closing.set(false); void this.router.navigate(['/cuentas', account.id]); },
-      error: error => { this.closing.set(false); this.actionError.set(error instanceof Error ? error.message : 'No se pudo cerrar la cuenta. Intentá nuevamente.'); }
+    this.service.obtenerCuenta(this.id).subscribe({
+      next: account => { this.account.set(account); this.loading.set(false); },
+      error: () => { this.error.set('No se pudo cargar la cuenta.'); this.loading.set(false); }
     });
   }
 }

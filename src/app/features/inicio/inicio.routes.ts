@@ -1,4 +1,4 @@
-import type { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
@@ -7,5 +7,3 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/inicio-page/inicio-page').then(m => m.InicioPage)
   }
 ];
-
-export default routes;

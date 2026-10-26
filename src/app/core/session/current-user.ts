@@ -1,17 +1,17 @@
 import { computed, Injectable, signal } from '@angular/core';
 
 export type UserRole = 'OPERADOR' | 'SUPERVISOR';
-export interface CurrentUser { name: string; role: UserRole; }
+export interface SessionUser { name: string; role: UserRole; }
 
 @Injectable({ providedIn: 'root' })
-export class CurrentUserService {
-  readonly user = signal<CurrentUser>({ name: 'María González', role: 'OPERADOR' });
-  readonly isSupervisor = computed(() => this.user().role === 'SUPERVISOR');
+export class CurrentUser {
+  // Sesión de demostración; reemplazar por la identidad autenticada al conectar el backend.
+  readonly user = signal<SessionUser>({ name: 'María López', role: 'SUPERVISOR' });
+  readonly role = computed(() => this.user().role);
+  readonly isSupervisor = computed(() => this.role() === 'SUPERVISOR');
 
   setRole(role: UserRole): void {
-    // Usuario de demostración; reemplazar con la sesión autenticada.
-    this.user.set(role === 'SUPERVISOR'
-      ? { name: 'Carlos Ruiz', role }
-      : { name: 'María González', role });
+    if (role !== 'OPERADOR' && role !== 'SUPERVISOR') return;
+    this.user.update(user => ({ ...user, role }));
   }
 }

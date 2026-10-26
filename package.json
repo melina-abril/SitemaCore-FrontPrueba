@@ -1,11 +1,10 @@
 {
   "name": "sistema-core-front",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test"
+    "build": "ng build"
   },
   "dependencies": {
     "@angular/common": "^21.2.0",

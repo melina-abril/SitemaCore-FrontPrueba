@@ -1,0 +1,6 @@
+h2 { margin: 0 0 1rem; font-size: 1.15rem; }
+.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1rem; }
+.quick-link { display: flex; flex-direction: column; gap: .4rem; color: var(--text); text-decoration: none; transition: border-color .15s ease; }
+.quick-link:hover, .quick-link:focus-visible { border-color: var(--primary); outline-color: var(--primary); }
+.quick-link strong { color: var(--primary); }
+.quick-link span { color: var(--muted); font-size: .875rem; }

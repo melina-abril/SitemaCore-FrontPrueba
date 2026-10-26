@@ -1,25 +1,32 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CurrentUserService } from '../../../../core/session/current-user';
 import { ClientesService } from '../../data-access/clientes.service';
-import { ClientResponse, ClientSearch } from '../../models/clientes.models';
+import { ClientResponse } from '../../models/clientes.models';
 
-@Component({ selector: 'app-client-list-page', standalone: true, imports: [FormsModule, RouterLink], templateUrl: './client-list-page.html', styleUrl: './client-list-page.scss' })
-export class ClientListPage implements OnInit {
-  private readonly clientsService = inject(ClientesService);
+@Component({
+  selector: 'app-client-list-page',
+  standalone: true,
+  imports: [RouterLink],
+  templateUrl: './client-list-page.html',
+  styleUrl: './client-list-page.scss'
+})
+export class ClientListPage {
+  readonly session = inject(CurrentUserService);
+  private readonly service = inject(ClientesService);
   readonly clients = signal<ClientResponse[]>([]);
-  readonly loading = signal(true);
+  readonly search = signal('');
+  readonly loading = signal(false);
   readonly error = signal('');
-  filters: ClientSearch = { name: '', document: '', number: '' };
 
-  ngOnInit(): void { this.search(); }
+  constructor() { this.load(); }
 
-  search(): void {
+  load(): void {
     this.loading.set(true);
     this.error.set('');
-    this.clientsService.searchClients(this.filters).subscribe({
+    this.service.buscarClientes(this.search()).subscribe({
       next: clients => { this.clients.set(clients); this.loading.set(false); },
-      error: () => { this.error.set('No se pudieron cargar los clientes. Intente nuevamente.'); this.loading.set(false); }
+      error: () => { this.error.set('No se pudieron cargar los clientes. Intentá nuevamente.'); this.loading.set(false); }
     });
   }
 }

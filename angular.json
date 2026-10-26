@@ -15,21 +15,21 @@
             "browser": "src/main.ts",
             "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
+            "assets": [{ "glob": "**/*", "input": "public", "output": "/" }],
             "styles": ["src/styles.scss"],
-            "assets": [{ "glob": "**/*", "input": "public", "output": "/" }]
+            "inlineStyleLanguage": "scss"
           },
           "configurations": {
-            "development": { "optimization": false, "sourceMap": true },
-            "production": { "optimization": true, "sourceMap": false }
+            "production": { "outputHashing": "all" },
+            "development": { "optimization": false, "sourceMap": true }
           },
           "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "development": { "buildTarget": "sistema-core-front:build:development" },
-            "production": { "buildTarget": "sistema-core-front:build:production" }
+            "production": { "buildTarget": "sistema-core-front:build:production" },
+            "development": { "buildTarget": "sistema-core-front:build:development" }
           },
           "defaultConfiguration": "development"
         }

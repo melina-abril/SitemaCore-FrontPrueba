@@ -1,25 +1,11 @@
 import { inject } from '@angular/core';
-import { CanMatchFn, Routes } from '@angular/router';
-import { CurrentUser } from '../../core/session/current-user';
+import { CanMatchFn, Router, Routes } from '@angular/router';
+import { CurrentUserService } from '../../core/session/current-user';
 
-const supervisorOnly: CanMatchFn = () => inject(CurrentUser).user().role === 'SUPERVISOR';
+const supervisorOnly: CanMatchFn = () => inject(CurrentUserService).user().role === 'SUPERVISOR' || inject(Router).parseUrl('/cuentas');
 
-export const routes: Routes = [
-  {
-    path: '',
-    title: 'Cuentas del cliente',
-    loadComponent: () => import('./pages/accounts-page/accounts-page').then(m => m.AccountsPage)
-  },
-  {
-    path: 'cerrar/:id',
-    title: 'Cerrar cuenta',
-    canMatch: [supervisorOnly],
-    loadComponent: () => import('./pages/account-detail-page/account-detail-page').then(m => m.AccountDetailPage),
-    data: { closeMode: true }
-  },
-  {
-    path: ':id',
-    title: 'Detalle de cuenta',
-    loadComponent: () => import('./pages/account-detail-page/account-detail-page').then(m => m.AccountDetailPage)
-  }
+export const CUENTAS_ROUTES: Routes = [
+  { path: '', loadComponent: () => import('./pages/accounts-page/accounts-page').then(m => m.AccountsPage) },
+  { path: 'cerrar/:id', canMatch: [supervisorOnly], loadComponent: () => import('./pages/close-account-page/close-account-page').then(m => m.CloseAccountPage) },
+  { path: ':id', loadComponent: () => import('./pages/account-detail-page/account-detail-page').then(m => m.AccountDetailPage) }
 ];

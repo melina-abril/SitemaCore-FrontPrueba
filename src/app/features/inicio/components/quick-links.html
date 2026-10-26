@@ -1,0 +1,17 @@
+<nav aria-label="Accesos directos">
+  <h2>Accesos directos</h2>
+  <div class="links">
+    @for (link of links; track link.path) {
+      <a class="card quick-link" [routerLink]="link.path">
+        <strong>{{ link.label }}</strong>
+        <span>{{ link.description }}</span>
+      </a>
+    }
+    @if (role() === 'SUPERVISOR') {
+      <a class="card quick-link" routerLink="/cierre">
+        <strong>Cierre diario</strong>
+        <span>Gestionar el cierre operativo</span>
+      </a>
+    }
+  </div>
+</nav>

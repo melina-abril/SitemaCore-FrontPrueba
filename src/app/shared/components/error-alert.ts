@@ -4,8 +4,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'app-error-alert',
   standalone: true,
   template: '<div class="alert" role="alert">{{ message() }}</div>',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ErrorAlert {
-  readonly message = input('No se pudo completar la operación.');
+  readonly message = input('Ocurrió un error. Inténtalo nuevamente.');
 }

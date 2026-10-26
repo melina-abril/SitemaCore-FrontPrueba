@@ -1,0 +1,7 @@
+.summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+h2 { margin: 0; font-size: 1.15rem; }
+.date-value, .status-value { font-size: 1.35rem; }
+.status-value { color: var(--text); }
+.status-value.ok { color: var(--success); }
+.status-value.warn { color: var(--warning); }
+@media (max-width: 640px) { .summary-grid { grid-template-columns: 1fr; gap: 1rem; } }

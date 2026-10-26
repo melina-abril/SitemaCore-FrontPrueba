@@ -1,7 +1,5 @@
-:host { display: block; background: var(--surface); border-right: 1px solid var(--border); }
-.nav { display: flex; flex-direction: column; gap: .25rem; padding: 1.25rem .75rem; }
-.nav a { display: block; padding: .7rem .85rem; border-radius: .5rem; color: var(--text); text-decoration: none; font-weight: 500; white-space: nowrap; }
-.nav a:hover { background: var(--bg); }
+.nav { display: flex; flex-direction: column; gap: .4rem; padding: 1.5rem .8rem; }
+.nav a { padding: .7rem 1rem; border-radius: .6rem; color: var(--text); text-decoration: none; font-weight: 500; }
+.nav a:hover { background: var(--border); }
 .nav a.active { background: var(--primary); color: var(--surface); }
-.nav a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-@media (max-width: 720px) { :host { border-right: 0; border-bottom: 1px solid var(--border); } .nav { flex-direction: row; overflow-x: auto; padding: .65rem 1rem; } }
+@media (max-width: 700px) { .nav { padding: .75rem; flex-direction: row; overflow-x: auto; border-bottom: 1px solid var(--border); } .nav a { white-space: nowrap; } }
