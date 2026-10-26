@@ -9,6 +9,6 @@ import { SideNav } from './core/layout/side-nav';
   imports: [RouterOutlet, AppHeader, SideNav],
   templateUrl: './app.html',
   styleUrl: './app.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class App {}

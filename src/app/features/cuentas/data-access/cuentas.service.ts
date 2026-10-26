@@ -4,42 +4,39 @@ import { Observable, defer, throwError } from 'rxjs';
 import { apiUrl } from '../../../core/http/api-url';
 import { mockResponse } from '../../../core/http/mock-response';
 import { environment } from '../../../../environments/environment';
-import { Account, Detail, OpenRequest } from '../models/cuentas.models';
+import { AccountDetail, AccountSummary, OpenRequest } from '../models/cuentas.models';
 import { mockCloseAccount, mockGetAccount, mockListAccounts, mockOpenAccount } from './cuentas.mock';
 
 @Injectable({ providedIn: 'root' })
 export class CuentasService {
   private readonly http = inject(HttpClient);
 
-  listAccounts(customerId: number): Observable<Account[]> {
-    if (environment.useMock) return this.mock(() => mockListAccounts(customerId));
-    return this.http.get<Account[]>(apiUrl('/api/cuentas'), {
-      params: new HttpParams().set('customerId', customerId)
+  listarCuentas(clienteId: number): Observable<AccountSummary[]> {
+    if (environment.useMock) return defer(() => mockResponse(mockListAccounts(clienteId)));
+    return this.http.get<AccountSummary[]>(apiUrl('/api/cuentas'), { params: new HttpParams().set('clienteId', clienteId) });
+  }
+
+  obtenerCuenta(id: number): Observable<AccountDetail> {
+    if (environment.useMock) return defer(() => {
+      const account = mockGetAccount(id);
+      return account ? mockResponse(account) : throwError(() => new Error('No se encontró la cuenta.'));
     });
+    return this.http.get<AccountDetail>(apiUrl(`/api/cuentas/${encodeURIComponent(id)}`));
   }
 
-  getAccount(id: number): Observable<Detail> {
-    if (environment.useMock) return this.mock(() => mockGetAccount(id));
-    return this.http.get<Detail>(apiUrl(`/api/cuentas/${id}`));
-  }
-
-  openAccount(request: OpenRequest): Observable<Account> {
-    if (environment.useMock) return this.mock(() => mockOpenAccount(request));
-    return this.http.post<Account>(apiUrl('/api/cuentas'), request);
-  }
-
-  closeAccount(id: number): Observable<Account> {
-    if (environment.useMock) return this.mock(() => mockCloseAccount(id));
-    return this.http.patch<Account>(apiUrl(`/api/cuentas/${id}/close`), {});
-  }
-
-  private mock<T>(create: () => T): Observable<T> {
-    return defer(() => {
-      try {
-        return mockResponse(create());
-      } catch (error) {
-        return throwError(() => error);
-      }
+  abrirCuenta(request: OpenRequest): Observable<AccountSummary> {
+    if (environment.useMock) return defer(() => {
+      try { return mockResponse(mockOpenAccount(request)); }
+      catch (error) { return throwError(() => error); }
     });
+    return this.http.post<AccountSummary>(apiUrl('/api/cuentas'), request);
+  }
+
+  cerrarCuenta(id: number): Observable<AccountSummary> {
+    if (environment.useMock) return defer(() => {
+      try { return mockResponse(mockCloseAccount(id)); }
+      catch (error) { return throwError(() => error); }
+    });
+    return this.http.patch<AccountSummary>(apiUrl(`/api/cuentas/${encodeURIComponent(id)}/cerrar`), {});
   }
 }

@@ -1,5 +1,8 @@
 <nav class="nav" aria-label="Navegación principal">
   @for (link of links; track link.path) {
-    <a [routerLink]="link.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" [attr.aria-label]="link.label">{{ link.label }}</a>
+    <a [routerLink]="link.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">{{ link.label }}</a>
+  }
+  @if (session.isSupervisor()) {
+    <a routerLink="/cierre" routerLinkActive="active">Cierre diario</a>
   }
 </nav>

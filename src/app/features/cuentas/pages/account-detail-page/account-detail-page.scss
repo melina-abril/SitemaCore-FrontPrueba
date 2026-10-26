@@ -1,9 +1,8 @@
-:host { display: block; }
-.card { margin: 1rem 0; }
-.account-data { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem; margin: 1rem 0; }
-.account-data dt { color: var(--muted); font-size: .8rem; font-weight: 600; }
-.account-data dd { margin: .3rem 0 0; }
-.table-wrap { overflow-x: auto; margin: 1rem 0; }
-table { width: 100%; border-collapse: collapse; text-align: left; }
-th, td { padding: .75rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.detail-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+.detail-heading p, .balance span, .balance small, .note { color: var(--muted); }
+.balance { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
+.balance strong { color: var(--text); font-size: 2rem; }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: .5rem; }
+table { width: 100%; border-collapse: collapse; text-align: left; min-width: 550px; }
+th, td { padding: .8rem; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-size: .8rem; }

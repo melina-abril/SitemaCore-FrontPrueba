@@ -1,0 +1,17 @@
+<section class="card" aria-labelledby="day-summary-title">
+  <h2 id="day-summary-title">Resumen del día</h2>
+  <div class="summary-grid">
+    <div class="stat">
+      <span class="stat-label">Fecha operativa</span>
+      <strong class="stat-value date-value">{{ summary().fechaOperativa | date:'dd/MM/yyyy':'UTC' }}</strong>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Movimientos cargados</span>
+      <strong class="stat-value">{{ summary().cantidadMovimientos }}</strong>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Estado del cierre</span>
+      <strong class="stat-value status-value" [class.ok]="closureClass() === 'ok'" [class.warn]="closureClass() === 'warn'">{{ closureLabel() }}</strong>
+    </div>
+  </div>
+</section>

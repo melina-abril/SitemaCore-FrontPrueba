@@ -4,8 +4,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'app-empty-state',
   standalone: true,
   template: '<p class="empty" role="status">{{ message() }}</p>',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EmptyState {
-  readonly message = input('No hay datos para mostrar.');
+  readonly message = input('No hay resultados para mostrar.');
 }

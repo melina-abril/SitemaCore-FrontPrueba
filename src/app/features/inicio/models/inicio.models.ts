@@ -1,13 +1,7 @@
-export interface DailySummaryAccess {
-  name: string;
-  path: string;
-}
-
-export interface DailySummary {
-  userName: string;
-  role: string;
-  operationalDate: string;
-  movementCount: number;
-  closureStatus: string;
-  accesses: DailySummaryAccess[];
+export interface ResumenDiaDto {
+  nombreUsuario: string;
+  rol: string;
+  fechaOperativa: string;
+  cantidadMovimientos: number;
+  estadoCierre: string;
 }

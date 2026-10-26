@@ -1,0 +1,6 @@
+.account-card { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+h3 { margin: 0; color: var(--text); }
+p, .account-balance span { color: var(--muted); }
+.account-balance { display: flex; flex-direction: column; align-items: flex-end; gap: .5rem; }
+.account-balance strong { font-size: 1.25rem; color: var(--text); }
+@media (max-width: 480px) { .account-balance { align-items: flex-start; } }

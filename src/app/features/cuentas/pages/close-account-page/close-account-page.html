@@ -1,0 +1,15 @@
+<section>
+  <h1 class="page-title">Cerrar cuenta</h1>
+  @if (loading()) { <p role="status">Cargando cuenta…</p> }
+  @else if (account(); as detail) {
+    <div class="card">
+      <h2>Cuenta {{ detail.numero }}</h2>
+      <p>Cliente {{ detail.clienteId }} · Saldo: {{ detail.saldo | number:'1.2-2' }} {{ detail.moneda }}</p>
+      @if (detail.estado !== 'ACTIVA') { <p role="status">Esta cuenta ya está cerrada.</p> }
+      @else if (detail.saldo !== 0) { <p role="status">No se puede cerrar una cuenta con saldo distinto de cero.</p> }
+      @else { <p>Confirmá el cierre de la cuenta. Esta operación requiere rol de supervisor.</p><button class="btn danger" type="button" [disabled]="saving()" (click)="close()">{{ saving() ? 'Cerrando…' : 'Confirmar cierre' }}</button> }
+      <a class="btn" [routerLink]="['/cuentas', detail.id]">Volver al detalle</a>
+    </div>
+  }
+  @if (error()) { <div class="alert" role="alert">{{ error() }} <button class="btn small" type="button" (click)="load()">Reintentar</button></div> }
+</section>

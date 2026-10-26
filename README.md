@@ -1,14 +1,7 @@
-# Sistema Core — Frontend
+# Sistema Core — frontend
 
-Requiere una versión de Node.js compatible con Angular 21.
+Requiere una versión de Node.js compatible con Angular 21. Ejecutar `npm install` y `npm start`; abrir la dirección local indicada por Angular CLI. Para compilar, ejecutar `npm run build`.
 
-```sh
-npm install
-npm start
-```
+La aplicación inicia con `useMock: true` en `src/environments/environment.ts`, por lo que se puede recorrer sin backend. Al conectar el backend, cambiar el flag a `false` y configurar `apiBaseUrl`. La sesión de demostración permite alternar entre operador y supervisor; no reemplaza la autenticación ni la autorización del servidor.
 
-Abrir la dirección local que indique Angular CLI. `npm run build` genera la aplicación en `dist/`.
-
-La aplicación inicia con `useMock: true` en `src/environments/environment.ts`, por lo que puede utilizarse sin backend. Para conectar la API, configurar `apiBaseUrl` y cambiar `useMock` a `false`. No incluir credenciales en ese archivo.
-
-`src/app/features/` contiene las funcionalidades; `core/` agrupa sesión, HTTP y layout; `shared/` contiene piezas reutilizables. El selector de rol del encabezado es solo una simulación de interfaz: las autorizaciones reales deben verificarse también en el backend.
+`src/app/features/` contiene los módulos funcionales, `core/` contiene sesión, layout y helpers HTTP, y `shared/` reúne componentes y tipos comunes. Los colores y estilos globales están en `src/styles.scss`.

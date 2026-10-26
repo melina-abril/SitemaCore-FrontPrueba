@@ -1,20 +1,27 @@
 <main class="inicio-page">
   <header>
     <h1 class="page-title">Inicio</h1>
-    @if (summary(); as data) {
-      <p>Bienvenido/a, {{ data.userName }} · {{ data.role === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</p>
-    } @else {
-      <p>Bienvenido/a, {{ currentUser.user().name }} · {{ currentUser.user().role === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</p>
-    }
+    <p class="welcome">Bienvenido, {{ currentUser.user().name }} · {{ currentUser.user().role === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</p>
   </header>
 
-  @if (loading()) {
-    <p role="status">Cargando el resumen del día…</p>
-  } @else if (error()) {
-    <div class="alert" role="alert">No se pudo cargar el resumen del día</div>
-    <button class="btn" type="button" (click)="refresh()">Reintentar</button>
-  } @else if (summary(); as data) {
-    <app-day-summary-card [summary]="data" />
+  @switch (state()) {
+    @case ('loading') {
+      <p class="card" role="status">Cargando resumen del día…</p>
+    }
+    @case ('ready') {
+      @if (summary(); as day) {
+        <app-day-summary-card [summary]="day" />
+      }
+    }
+    @case ('empty') {
+      <p class="card empty">No hay un resumen disponible para la fecha operativa.</p>
+    }
+    @case ('error') {
+      <div class="alert" role="alert">
+        <p>No se pudo cargar el resumen del día</p>
+        <button type="button" class="btn small" (click)="load()">Reintentar</button>
+      </div>
+    }
   }
 
   <app-quick-links [role]="currentUser.user().role" />

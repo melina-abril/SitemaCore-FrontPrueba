@@ -1,51 +1,62 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { apiUrl } from '../../../core/http/api-url';
 import { mockResponse } from '../../../core/http/mock-response';
-import { DailyClose } from '../models/cierre.models';
-import { mockCloseHistory, mockDailyClose } from './cierre.mock';
+import { CierreDto } from '../models/cierre.models';
+import { mockCierreActual, mockHistorialCierres } from './cierre.mock';
 
 @Injectable({ providedIn: 'root' })
 export class CierreService {
   private readonly http = inject(HttpClient);
-  private readonly url = `${environment.apiBaseUrl.replace(/\/$/, '')}/cierre-diario`;
-  private current: DailyClose = structuredClone(mockDailyClose);
-  private history: DailyClose[] = structuredClone(mockCloseHistory);
+  private mockActual: CierreDto = { ...mockCierreActual };
+  private mockHistorial: CierreDto[] = [...mockHistorialCierres];
 
-  getDailyClose(): Observable<DailyClose> {
+  obtenerCierreDiario(): Observable<CierreDto> {
+    // El mock se reemplaza al conectar el backend.
     return environment.useMock
-      ? mockResponse(structuredClone(this.current))
-      : this.http.get<DailyClose>(this.url);
+      ? mockResponse({ ...this.mockActual, saldosCierre: { ...this.mockActual.saldosCierre } })
+      : this.http.get<CierreDto>(apiUrl('/api/cierre-diario'));
   }
 
-  listDailyCloses(): Observable<DailyClose[]> {
+  listarCierres(): Observable<CierreDto[]> {
     return environment.useMock
-      ? mockResponse(structuredClone(this.history))
-      : this.http.get<DailyClose[]>(`${this.url}/historial`);
+      ? mockResponse(this.mockHistorial.map(cierre => ({ ...cierre, saldosCierre: { ...cierre.saldosCierre } })))
+      : this.http.get<CierreDto[]>(apiUrl('/api/cierre-diario/historial'));
   }
 
-  executeDailyClose(): Observable<DailyClose> {
-    if (!environment.useMock) return this.http.post<DailyClose>(this.url, {});
-    // El mock conserva el resultado durante esta sesión; reemplazar al conectar el backend.
-    if (this.current.estado === 'PENDIENTE') this.completeMockClose();
-    return mockResponse(structuredClone(this.current));
+  ejecutarCierre(): Observable<CierreDto> {
+    if (environment.useMock) {
+      if (this.mockActual.estado !== 'PENDIENTE') {
+        throw new Error('El cierre de este día ya fue iniciado o completado.');
+      }
+      return mockResponse(this.completarMock());
+    }
+    return this.http.post<CierreDto>(apiUrl('/api/cierre-diario/ejecutar'), {});
   }
 
-  retryDailyClose(): Observable<DailyClose> {
-    if (!environment.useMock) return this.http.post<DailyClose>(`${this.url}/reproceso`, {});
-    // El reproceso mock conserva el resultado durante esta sesión.
-    if (this.current.estado === 'CON_ERROR') this.completeMockClose();
-    return mockResponse(structuredClone(this.current));
+  reprocesarCierre(): Observable<CierreDto> {
+    if (environment.useMock) {
+      if (this.mockActual.estado !== 'CON_ERROR') {
+        throw new Error('Solo se puede reprocesar un cierre fallido.');
+      }
+      return mockResponse(this.completarMock());
+    }
+    return this.http.post<CierreDto>(apiUrl('/api/cierre-diario/reprocesar'), {});
   }
 
-  private completeMockClose(): void {
-    this.current = {
-      ...this.current, estado: 'COMPLETADO', totalDebitos: 192340.75,
-      totalCreditos: 205780.25,
-      saldosCierre: { 'CTA-1001': 135200.50, 'CTA-1002': 79450 },
-      motivoError: null
+  private completarMock(): CierreDto {
+    this.mockActual = {
+      ...this.mockActual,
+      estado: 'COMPLETADO',
+      totalDebitos: 135420.75,
+      totalCreditos: 158970.3,
+      saldosCierre: { ARS: 2491670.35, USD: 38250 },
+      motivoError: null,
+      cerradoEn: '2026-02-25T20:12:00Z'
     };
-    this.history = [structuredClone(this.current), ...this.history];
+    this.mockHistorial = [this.mockActual, ...this.mockHistorial.filter(cierre => cierre.fechaOperativa !== this.mockActual.fechaOperativa)];
+    return { ...this.mockActual, saldosCierre: { ...this.mockActual.saldosCierre } };
   }
 }

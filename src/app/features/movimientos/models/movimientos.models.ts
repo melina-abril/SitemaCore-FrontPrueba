@@ -1,48 +1,46 @@
-export type MovementType = 'DEBITO' | 'CREDITO' | 'AJUSTE';
+export type TipoMovimiento = 'DEBITO' | 'CREDITO' | 'AJUSTE';
 
-export interface MovementRequest {
+export interface MovimientoRequest {
   cuentaId: number;
-  tipo: MovementType;
+  tipo: TipoMovimiento;
   importe: number;
   fechaOperativa: string;
   concepto: string;
 }
 
-export interface AdjustmentRequest {
-  direccion: MovementType;
+export interface AjusteRequest {
+  direccion: TipoMovimiento;
   importe: number;
   concepto: string;
 }
 
-export interface MovementResponse {
+export interface MovimientoResponse {
   id: number;
   cuentaId: number;
-  tipo: MovementType;
-  direccion: MovementType;
+  tipo: TipoMovimiento;
   importe: number;
   fechaOperativa: string;
   concepto: string;
   usuario: string;
-  fechaHora: string;
+  registradoEn: string;
   cerrado: boolean;
+  saldoResultante: number;
   movimientoOriginalId: number | null;
+}
+
+export interface ConsultaResponse {
+  movimientos: MovimientoResponse[];
   saldoResultante: number;
 }
 
-export interface MovementSearchResponse {
-  movimientos: MovementResponse[];
-  saldoResultante: number;
-}
-
-export interface MovementDeletionResponse {
+export interface BajaResponse {
   id: number;
   estado: string;
   usuario: string;
-  fechaHora: string;
-  saldoResultante: number;
+  registradoEn: string;
 }
 
-export interface MovementFilters {
+export interface MovimientoFilters {
   cuentaId?: number;
   desde?: string;
   hasta?: string;
