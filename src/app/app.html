@@ -1,0 +1,15 @@
+@if (currentUser.isLoggedIn()) {
+  <div class="app-shell">
+    <app-header />
+    <div class="app-body">
+      <app-side-nav />
+      <main class="app-content" id="main-content">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+} @else {
+  <main class="public-content" id="main-content">
+    <router-outlet />
+  </main>
+}

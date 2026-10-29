@@ -1,0 +1,33 @@
+import { inject } from '@angular/core';
+import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { catchError, tap, throwError } from 'rxjs';
+import { CurrentUser } from '../session/current-user';
+
+export const authInterceptor: HttpInterceptorFn = (request, next) => {
+  const user = inject(CurrentUser);
+  const router = inject(Router);
+  const token = user.token();
+  const authorizedRequest = token
+    ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : request;
+  const isLogin = request.url.split('?')[0].endsWith('/auth/login');
+
+  return next(authorizedRequest).pipe(
+    tap(event => {
+      if (event instanceof HttpResponse) {
+        const renewedToken = event.headers.get('X-Auth-Token');
+        if (renewedToken) {
+          user.updateToken(renewedToken);
+        }
+      }
+    }),
+    catchError((error: unknown) => {
+      if (error instanceof HttpErrorResponse && error.status === 401 && !isLogin) {
+        user.clear();
+        void router.navigate(['/login'], { queryParams: { expired: 'true' } });
+      }
+      return throwError(() => error);
+    })
+  );
+};
