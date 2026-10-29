@@ -1,0 +1,7 @@
+<header class="header">
+  <a class="brand" href="/" aria-label="Sistema Core, ir al inicio">Sistema Core</a>
+  <div class="session">
+    <span class="identity">{{ currentUser.nombre() }} <span class="role">{{ currentUser.rol() === 'SUPERVISOR' ? 'Supervisor' : 'Operador' }}</span></span>
+    <button type="button" class="btn" [disabled]="closing()" (click)="logout()">{{ closing() ? 'Cerrando sesión…' : 'Cerrar sesión' }}</button>
+  </div>
+</header>

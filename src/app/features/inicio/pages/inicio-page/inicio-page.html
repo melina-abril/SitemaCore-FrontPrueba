@@ -1,0 +1,56 @@
+<div class="inicio">
+  <header class="page-identity">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">SC</span>
+      <span>Sistema Core</span>
+    </div>
+    <div class="user-identity">
+      <div class="user-text">
+        <strong>{{ nombre() }}</strong>
+        <span>{{ rol() }}</span>
+      </div>
+      <span class="avatar" aria-hidden="true">{{ iniciales() }}</span>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="introduction" aria-labelledby="inicio-title">
+      <h1 id="inicio-title">Inicio</h1>
+      <p>Accedé a la operación del día y consultá su estado actual.</p>
+    </section>
+
+    <section class="section" aria-labelledby="summary-title">
+      <div class="section-heading summary-heading">
+        <h2 id="summary-title">Resumen del día</h2>
+        <span>Actualizado al ingresar</span>
+      </div>
+      @if (state(); as summaryState) {
+        @switch (summaryState.status) {
+          @case ('loading') {
+            <p class="feedback" role="status">Cargando el resumen del día…</p>
+          }
+          @case ('error') {
+            <div class="feedback error" role="alert">
+              <p>{{ summaryState.message }}</p>
+              <button class="btn" type="button" (click)="load()">Reintentar</button>
+            </div>
+          }
+          @case ('empty') {
+            <p class="feedback">No hay un resumen disponible para la fecha operativa.</p>
+          }
+          @case ('ready') {
+            <app-day-summary-card [resumen]="summaryState.data" />
+          }
+        }
+      }
+    </section>
+
+    <section class="section" aria-labelledby="links-title">
+      <div class="section-heading links-heading">
+        <h2 id="links-title">Accesos directos</h2>
+        <p>Elegí dónde continuar.</p>
+      </div>
+      <app-quick-links [isSupervisor]="session.isSupervisor()" />
+    </section>
+  </main>
+</div>
