@@ -23,7 +23,9 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
       }
     }),
     catchError((error: unknown) => {
-      if (error instanceof HttpErrorResponse && error.status === 401 && !isLogin) {
+      // Solo un 401 de una request que llevaba token es una sesión vencida; sin token (p. ej. justo
+      // después de cerrar sesión) no hay nada que avisar.
+      if (error instanceof HttpErrorResponse && error.status === 401 && !isLogin && token) {
         user.clear();
         void router.navigate(['/login'], { queryParams: { expired: 'true' } });
       }
